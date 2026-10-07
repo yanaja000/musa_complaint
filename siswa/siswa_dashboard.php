@@ -299,7 +299,7 @@ $pengaduan = $stmt->get_result();
 
             </div>
 
-            <a href="pengaduan-saya.php">
+            <a href="pengaduan_saya.php">
                 Lihat Semua
             </a>
 
