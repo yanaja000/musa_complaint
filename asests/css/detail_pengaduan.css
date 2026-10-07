@@ -1,0 +1,494 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: "Poppins", sans-serif;
+    background: #f5f9ff;
+    color: #172033;
+}
+
+/* ================= NAVBAR ================= */
+
+.navbar {
+    height: 70px;
+    background: #ffffff;
+    border-bottom: 1px solid #e5edf8;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    padding: 0 7%;
+
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.logo {
+    font-size: 21px;
+    font-weight: 700;
+    color: #1261d6;
+}
+
+.logo span {
+    color: #172033;
+}
+
+.menu {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+}
+
+.menu a {
+    text-decoration: none;
+    color: #52627a;
+    font-size: 14px;
+    font-weight: 500;
+    transition: 0.2s;
+}
+
+.menu a:hover {
+    color: #1261d6;
+}
+
+/* ================= CONTAINER ================= */
+
+.container {
+    width: min(1000px, 90%);
+    margin: 45px auto 70px;
+}
+
+.back {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 25px;
+    padding: 8px 16px;
+
+    text-decoration: none;
+    color: #1261d6;
+    background-color: #ffffff;
+    
+    font-size: 14px;
+    font-weight: 500;
+    
+    /* Penambahan Border & Styling Visual */
+    border: 1px solid #1261d6;
+    border-radius: 6px;
+    
+    /* Transisi halus saat di-hover */
+    transition: all 0.2s ease-in-out;
+}
+
+.back:hover {
+    background-color: #1261d6;
+    color: #ffffff;
+    border-color: #1261d6;
+    
+    /* Efek bayangan halus */
+    box-shadow: 0 2px 8px rgba(18, 97, 214, 0.25);
+    transform: translateY(-1px);
+}
+
+.back:active {
+    transform: translateY(0);
+}
+
+/* ================= HEADER ================= */
+
+.detail-header {
+    background: #ffffff;
+    border: 1px solid #e3ebf7;
+    border-radius: 16px;
+
+    padding: 30px;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+
+    gap: 20px;
+
+    box-shadow: 0 5px 20px rgba(28, 72, 130, 0.06);
+}
+
+.category {
+    display: inline-block;
+
+    background: #eaf3ff;
+    color: #1261d6;
+
+    padding: 6px 12px;
+
+    border-radius: 7px;
+
+    font-size: 12px;
+    font-weight: 600;
+
+    margin-bottom: 12px;
+}
+
+.detail-header h1 {
+    font-size: 27px;
+    line-height: 1.4;
+    color: #172033;
+}
+
+.status {
+    background: #edf5ff;
+    color: #1261d6;
+
+    padding: 8px 15px;
+
+    border-radius: 20px;
+
+    font-size: 12px;
+    font-weight: 600;
+
+    white-space: nowrap;
+}
+
+/* ================= INFO ================= */
+
+.info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+
+    gap: 18px;
+
+    margin-top: 18px;
+}
+
+.info-box {
+    background: #ffffff;
+
+    border: 1px solid #e3ebf7;
+    border-radius: 14px;
+
+    padding: 20px;
+}
+
+.info-box small {
+    display: block;
+
+    color: #7a8799;
+
+    font-size: 12px;
+
+    margin-bottom: 7px;
+}
+
+.info-box p {
+    color: #172033;
+
+    font-size: 14px;
+    font-weight: 500;
+}
+
+/* ================= CARD ================= */
+
+.card {
+    background: #ffffff;
+
+    border: 1px solid #e3ebf7;
+    border-radius: 16px;
+
+    padding: 28px;
+
+    margin-top: 18px;
+
+    box-shadow: 0 5px 20px rgba(28, 72, 130, 0.05);
+}
+
+.card h2 {
+    font-size: 18px;
+    margin-bottom: 20px;
+    color: #172033;
+}
+
+.content-text {
+    color: #52627a;
+
+    font-size: 14px;
+    line-height: 1.9;
+
+    white-space: normal;
+}
+
+/* ================= TIMELINE ================= */
+
+.timeline {
+    position: relative;
+
+    margin-left: 8px;
+}
+
+.timeline-item {
+    position: relative;
+
+    display: flex;
+
+    gap: 17px;
+
+    padding-bottom: 28px;
+}
+
+.timeline-item:last-child {
+    padding-bottom: 0;
+}
+
+.timeline-item:not(:last-child)::before {
+    content: "";
+
+    position: absolute;
+
+    left: 5px;
+    top: 12px;
+    bottom: 0;
+
+    width: 2px;
+
+    background: #dce9f8;
+}
+
+.timeline-dot {
+    width: 12px;
+    height: 12px;
+
+    background: #1261d6;
+
+    border-radius: 50%;
+
+    margin-top: 5px;
+
+    flex-shrink: 0;
+
+    position: relative;
+    z-index: 2;
+}
+
+.timeline-content h3 {
+    font-size: 15px;
+
+    color: #1261d6;
+
+    margin-bottom: 5px;
+}
+
+.timeline-content p {
+    font-size: 13px;
+
+    color: #52627a;
+
+    line-height: 1.7;
+
+    margin-bottom: 6px;
+}
+
+.timeline-content small {
+    font-size: 11px;
+
+    color: #8a96a8;
+}
+
+/* ================= RESPONSE ================= */
+
+.response {
+    border: 1px solid #e2ebf7;
+
+    border-radius: 12px;
+
+    padding: 18px;
+
+    margin-bottom: 12px;
+}
+
+.response:last-child {
+    margin-bottom: 0;
+}
+
+.response-header {
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    gap: 15px;
+
+    margin-bottom: 10px;
+}
+
+.response-header strong {
+    color: #1261d6;
+
+    font-size: 14px;
+}
+
+.response-header small {
+    color: #8a96a8;
+
+    font-size: 11px;
+}
+
+.response p {
+    color: #52627a;
+
+    font-size: 13px;
+
+    line-height: 1.8;
+}
+
+.empty-text {
+    color: #8995a7;
+
+    font-size: 13px;
+}
+
+/* ================= RESPONSIVE ================= */
+
+@media (max-width: 768px) {
+
+    .navbar {
+        height: auto;
+
+        padding: 18px 5%;
+
+        align-items: flex-start;
+
+        gap: 15px;
+
+        flex-direction: column;
+    }
+
+    .menu {
+        width: 100%;
+
+        gap: 15px;
+
+        flex-wrap: wrap;
+    }
+
+    .container {
+        width: 92%;
+
+        margin-top: 30px;
+    }
+
+    .detail-header {
+        flex-direction: column;
+    }
+
+    .detail-header h1 {
+        font-size: 22px;
+    }
+
+    .info-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .card {
+        padding: 22px;
+    }
+
+    .response-header {
+        align-items: flex-start;
+
+        flex-direction: column;
+
+        gap: 4px;
+    }
+}
+
+/* =========================
+   FOTO BUKTI
+========================= */
+
+.foto-bukti {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.foto-item {
+    width: 220px;
+    border: 1px solid #e3ebf7;
+    border-radius: 10px;
+    background: #ffffff;
+    overflow: hidden;
+}
+
+.foto-item img {
+    display: block;
+    width: 220px;
+    height: 140px;
+    object-fit: contain;
+    background: #f5f9ff;
+}
+
+.foto-item p {
+    margin: 0;
+    padding: 8px 10px;
+    color: #52627a;
+    font-size: 11px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+@media (max-width: 600px) {
+    .foto-item {
+        width: 160px;
+    }
+
+    .foto-item img {
+        width: 160px;
+        height: 110px;
+    }
+}
+
+/* =========================
+   UKURAN FOTO BUKTI
+========================= */
+
+.card .foto-bukti {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 15px !important;
+    width: 100% !important;
+}
+
+.card .foto-bukti .foto-item {
+    width: 180px !important;
+    max-width: 180px !important;
+    min-width: 180px !important;
+    overflow: hidden !important;
+    border: 1px solid #e3ebf7 !important;
+    border-radius: 10px !important;
+}
+
+.card .foto-bukti .foto-item img {
+    display: block !important;
+    width: 150px !important;
+    max-width: 150px !important;
+    min-width: 0 !important;
+    height: 100px !important;
+    max-height: 120px !important;
+    object-fit: contain !important;
+    background: #f5f9ff !important;
+}
+
+.card .foto-bukti .foto-item p {
+    width: auto !important;
+    margin: 0 !important;
+    padding: 8px 10px !important;
+    font-size: 11px !important;
+    overflow: hidden !important;
+    white-space: nowrap !important;
+    text-overflow: ellipsis !important;
+}

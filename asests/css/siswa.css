@@ -1,0 +1,451 @@
+/* =========================================================
+   DASHBOARD SISWA
+========================================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Poppins", sans-serif;
+}
+
+body {
+    font-family: "Poppins", sans-serif;
+}
+
+/* =========================================
+   Navbar Layout Utama
+   ========================================= */
+.dashboard-navbar {
+    width: 100%;
+    min-height: 70px;
+    background: #ffffff;
+    border-bottom: 1px solid #e2e8f0;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    padding: 0 5%;
+    
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(8px);
+}
+
+/* =========================================
+   Logo Branding
+   ========================================= */
+.dashboard-logo {
+    color: #2563eb;
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+}
+
+.dashboard-logo span {
+    color: #1e3a8a;
+}
+
+/* =========================================
+   Navigasi Menu
+   ========================================= */
+.dashboard-menu {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.dashboard-menu a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 16px;
+    border-radius: 8px;
+
+    color: #475569;
+    text-decoration: none;
+
+    font-size: 14px;
+    font-weight: 500;
+
+    transition: all 0.2s ease-in-out;
+}
+
+/* State Hover & Active untuk semua menu */
+.dashboard-menu a:hover {
+    color: #2563eb;
+    background-color: #eff6ff;
+}
+
+.dashboard-menu a.active {
+    color: #2563eb;
+    background-color: #eff6ff;
+    font-weight: 600;
+}
+
+/* =========================================
+   Penyesuaian Responsif (Mobile / Layar Kecil)
+   ========================================= */
+@media (max-width: 768px) {
+    .dashboard-navbar {
+        padding: 0 16px;
+    }
+
+    .dashboard-menu {
+        gap: 2px;
+    }
+
+    .dashboard-menu a {
+        padding: 8px 10px;
+        font-size: 13px;
+    }
+}
+
+/* CONTAINER */
+
+.dashboard-container {
+    width: 88%;
+    max-width: 1250px;
+
+    margin: 0 auto;
+    padding: 45px 0;
+}
+
+
+/* WELCOME */
+
+.dashboard-welcome {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 30px;
+    margin-bottom: 35px;
+}
+
+.dashboard-label {
+    color: #2563eb;
+    font-size: 13px;
+    font-weight: 600;
+
+    margin-bottom: 8px;
+}
+
+.dashboard-welcome h1 {
+    margin: 0 0 10px;
+
+    color: #0f172a;
+    font-size: 32px;
+}
+
+.dashboard-welcome p {
+    margin: 0;
+
+    color: #64748b;
+    font-size: 14px;
+}
+
+
+/* BUTTON */
+
+.primary-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 12px 18px;
+
+    background: #2563eb;
+    color: #ffffff;
+
+    border-radius: 9px;
+
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+
+    white-space: nowrap;
+
+    transition: 0.2s ease;
+}
+
+.primary-button:hover {
+    background: #1d4ed8;
+    transform: translateY(-1px);
+}
+
+
+/* STATISTIK */
+
+.dashboard-stats {
+    display: grid;
+
+    grid-template-columns:
+        repeat(4, 1fr);
+
+    gap: 18px;
+
+    margin-bottom: 40px;
+}
+
+.stat-card {
+    background: #ffffff;
+
+    border: 1px solid #dbeafe;
+    border-radius: 14px;
+
+    padding: 22px;
+
+    display: flex;
+    align-items: center;
+
+    gap: 15px;
+
+    box-shadow:
+        0 8px 25px
+        rgba(37, 99, 235, 0.05);
+}
+
+.stat-icon {
+    width: 45px;
+    height: 45px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 10px;
+
+    background: #eff6ff;
+    color: #2563eb;
+
+    font-weight: 700;
+}
+
+.stat-card span {
+    display: block;
+
+    color: #64748b;
+    font-size: 13px;
+
+    margin-bottom: 4px;
+}
+
+.stat-card strong {
+    color: #0f172a;
+
+    font-size: 25px;
+}
+
+
+/* SECTION */
+
+.dashboard-section {
+    background: #ffffff;
+
+    border: 1px solid #dbeafe;
+    border-radius: 15px;
+
+    padding: 25px;
+
+    box-shadow:
+        0 8px 25px
+        rgba(37, 99, 235, 0.04);
+}
+
+.section-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    margin-bottom: 20px;
+}
+
+.section-heading h2 {
+    margin: 0 0 5px;
+
+    color: #0f172a;
+    font-size: 20px;
+}
+
+.section-heading p {
+    margin: 0;
+
+    color: #64748b;
+    font-size: 13px;
+}
+
+.section-heading a {
+    color: #2563eb;
+    text-decoration: none;
+
+    font-size: 13px;
+    font-weight: 600;
+}
+
+
+/* COMPLAINT */
+
+.complaint-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.complaint-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 20px;
+
+    padding: 18px;
+
+    border: 1px solid #e0ecff;
+    border-radius: 11px;
+
+    transition: 0.2s ease;
+}
+
+.complaint-card:hover {
+    border-color: #93c5fd;
+    background: #f8fbff;
+}
+
+.complaint-info h3 {
+    margin: 0 0 7px;
+
+    color: #1e293b;
+    font-size: 15px;
+}
+
+.complaint-info p {
+    margin: 0 0 5px;
+
+    color: #64748b;
+    font-size: 13px;
+}
+
+.complaint-info small {
+    color: #94a3b8;
+    font-size: 12px;
+}
+
+
+/* STATUS */
+
+.complaint-status span {
+    display: inline-block;
+
+    padding: 7px 12px;
+
+    border-radius: 20px;
+
+    background: #eff6ff;
+    color: #2563eb;
+
+    font-size: 12px;
+    font-weight: 600;
+
+    white-space: nowrap;
+}
+
+
+/* EMPTY */
+
+.empty-state {
+    text-align: center;
+
+    padding: 45px 20px;
+}
+
+.empty-state h3 {
+    margin-bottom: 7px;
+
+    color: #1e293b;
+}
+
+.empty-state p {
+    margin-bottom: 20px;
+
+    color: #64748b;
+    font-size: 14px;
+}
+
+
+/* RESPONSIVE */
+
+@media (max-width: 900px) {
+
+    .dashboard-navbar {
+        padding: 15px 4%;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .dashboard-menu {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .dashboard-stats {
+        grid-template-columns:
+            repeat(2, 1fr);
+    }
+
+    .dashboard-welcome {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+}
+
+
+@media (max-width: 600px) {
+
+    .dashboard-container {
+        width: 92%;
+        padding: 30px 0;
+    }
+
+    .dashboard-welcome h1 {
+        font-size: 25px;
+    }
+
+    .dashboard-stats {
+        grid-template-columns: 1fr;
+    }
+
+    .dashboard-section {
+        padding: 18px;
+    }
+
+    .section-heading {
+        align-items: flex-start;
+        gap: 15px;
+        flex-direction: column;
+    }
+
+    .complaint-card {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .complaint-status {
+        width: 100%;
+    }
+
+    .complaint-status span {
+        width: 100%;
+        text-align: center;
+        box-sizing: border-box;
+    }
+
+}
