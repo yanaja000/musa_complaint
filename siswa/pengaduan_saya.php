@@ -7,14 +7,142 @@ requireRole("siswa");
 
 $id_siswa = $_SESSION["user_id"];
 
+/* =========================
+   HAPUS PENGADUAN
+========================= */
+
+if (isset($_GET["hapus"])) {
+
+    $id_pengaduan = (int) $_GET["hapus"];
+
+    // Pastikan pengaduan milik siswa yang sedang login
+    $stmt = $conn->prepare("
+        SELECT id_status
+        FROM pengaduan
+        WHERE id_pengaduan = ?
+        AND id_siswa = ?
+    ");
+
+    $stmt->bind_param(
+        "ii",
+        $id_pengaduan,
+        $id_siswa
+    );
+
+    $stmt->execute();
+
+    $result = $stmt->get_result();
+
+    if ($result->num_rows === 0) {
+        die("Pengaduan tidak ditemukan.");
+    }
+
+    $pengaduan = $result->fetch_assoc();
+
+    // Hanya status MENUNGGU yang boleh dihapus
+    if ((int) $pengaduan["id_status"] !== 1) {
+        die("Pengaduan yang sudah diproses tidak dapat dihapus.");
+    }
+
+    // Ambil file lampiran
+    $stmt_file = $conn->prepare("
+        SELECT path_file
+        FROM lampiran
+        WHERE id_pengaduan = ?
+    ");
+
+    $stmt_file->bind_param(
+        "i",
+        $id_pengaduan
+    );
+
+    $stmt_file->execute();
+
+    $files = $stmt_file->get_result();
+
+    // Hapus file foto dari folder
+    while ($file = $files->fetch_assoc()) {
+
+        $file_path = "../" . $file["path_file"];
+
+        if (file_exists($file_path)) {
+            unlink($file_path);
+        }
+    }
+
+    // Gunakan transaction supaya penghapusan aman
+    $conn->begin_transaction();
+
+    try {
+
+        // Hapus lampiran
+        $stmt = $conn->prepare("
+            DELETE FROM lampiran
+            WHERE id_pengaduan = ?
+        ");
+
+        $stmt->bind_param("i", $id_pengaduan);
+        $stmt->execute();
+
+
+        // Hapus tanggapan
+        $stmt = $conn->prepare("
+            DELETE FROM tanggapan
+            WHERE id_pengaduan = ?
+        ");
+
+        $stmt->bind_param("i", $id_pengaduan);
+        $stmt->execute();
+
+
+        // Hapus riwayat status
+        $stmt = $conn->prepare("
+            DELETE FROM riwayat_status
+            WHERE id_pengaduan = ?
+        ");
+
+        $stmt->bind_param("i", $id_pengaduan);
+        $stmt->execute();
+
+
+        // Terakhir hapus pengaduan
+        $stmt = $conn->prepare("
+            DELETE FROM pengaduan
+            WHERE id_pengaduan = ?
+            AND id_siswa = ?
+        ");
+
+        $stmt->bind_param(
+            "ii",
+            $id_pengaduan,
+            $id_siswa
+        );
+
+        $stmt->execute();
+
+        $conn->commit();
+
+        header("Location: pengaduan_saya.php?hapus=berhasil");
+        exit;
+
+    } catch (Exception $e) {
+
+        $conn->rollback();
+
+        die("Pengaduan gagal dihapus.");
+    }
+}
+
 /* Ambil pengaduan milik siswa yang sedang login */
 $stmt = $conn->prepare("
     SELECT
         p.id_pengaduan,
+        p.id_status,
         p.judul,
         p.isi_pengaduan,
         p.lokasi,
         p.created_at,
+
         k.nama_kategori,
         s.nama_status
     FROM pengaduan p
@@ -195,6 +323,21 @@ $result = $stmt->get_result();
                         >
                             Lihat Detail
                         </a>
+
+                            <?php if ((int) $row["id_status"] === 1): ?>
+
+                        <a
+                            href="pengaduan_saya.php?hapus=<?= $row["id_pengaduan"]; ?>"
+                            class="btn-delete"
+                            onclick="return confirm(
+                            'Yakin ingin menghapus pengaduan ini?\\n\\nPengaduan dan foto bukti akan ikut dihapus.'
+                            );"
+                            >
+                            Hapus
+                        </a>
+
+                            <?php endif; ?>
+
 
                     </div>
 

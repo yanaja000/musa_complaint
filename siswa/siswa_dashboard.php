@@ -129,7 +129,7 @@ $pengaduan = $stmt->get_result();
 
     <div class="dashboard-menu">
 
-        <a href="dashboard.php" class="active">
+        <a href="siswa_dashboard.php" class="active">
             Dashboard
         </a>
 

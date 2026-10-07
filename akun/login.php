@@ -76,7 +76,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
         if ($loginSuccess) {
             if ($_SESSION["role"] === "admin") {
-                header("Location: ../admin/dashboard.php");
+                header("Location: ../admin/admin_dashboard.php");
             } else {
                 header("Location: ../siswa/siswa_dashboard.php");
             }
