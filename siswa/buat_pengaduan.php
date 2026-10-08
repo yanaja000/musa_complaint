@@ -66,81 +66,89 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             $id_pengaduan = $conn->insert_id;
 
             /* =========================
-                UPLOAD FOTO BUKTI
+               UPLOAD FOTO BUKTI
             ========================= */
 
-if (isset($_FILES["gambar"]) && $_FILES["gambar"]["error"] === UPLOAD_ERR_OK) {
+            if (
+                isset($_FILES["gambar"]) &&
+                $_FILES["gambar"]["error"] === UPLOAD_ERR_OK
+            ) {
 
-    // Maksimal 5 MB
-    if ($_FILES["gambar"]["size"] > 5 * 1024 * 1024) {
-        die("Ukuran foto maksimal 5 MB.");
-    }
+                // Maksimal 5 MB
+                if ($_FILES["gambar"]["size"] > 5 * 1024 * 1024) {
+                    die("Ukuran foto maksimal 5 MB.");
+                }
 
-    // Cek tipe file
-    $allowed_types = [
-        "image/jpeg",
-        "image/png",
-        "image/webp"
-    ];
+                // Cek tipe file
+                $allowed_types = [
+                    "image/jpeg",
+                    "image/png",
+                    "image/webp"
+                ];
 
-    $file_type = mime_content_type(
-        $_FILES["gambar"]["tmp_name"]
-    );
+                $file_type = mime_content_type(
+                    $_FILES["gambar"]["tmp_name"]
+                );
 
-    if (!in_array($file_type, $allowed_types)) {
-        die("Foto harus berformat JPG, PNG, atau WEBP.");
-    }
+                if (!in_array($file_type, $allowed_types)) {
+                    die("Foto harus berformat JPG, PNG, atau WEBP.");
+                }
 
-    // Folder penyimpanan
-    $folder = "../uploads/pengaduan/";
+                // Folder penyimpanan
+                $folder = "../uploads/pengaduan/";
 
-    // Ambil ekstensi file
-    $extension = strtolower(
-        pathinfo(
-            $_FILES["gambar"]["name"],
-            PATHINFO_EXTENSION
-        )
-    );
+                // Pastikan folder tersedia
+                if (!is_dir($folder)) {
+                    mkdir($folder, 0777, true);
+                }
 
-    // Buat nama file baru
-    $nama_file = uniqid("pengaduan_", true) . "." . $extension;
+                // Ambil ekstensi file
+                $extension = strtolower(
+                    pathinfo(
+                        $_FILES["gambar"]["name"],
+                        PATHINFO_EXTENSION
+                    )
+                );
 
-    // Lokasi file
-    $path_file = $folder . $nama_file;
+                // Buat nama file baru
+                $nama_file = uniqid("pengaduan_", true) . "." . $extension;
 
-    // Pindahkan file ke folder uploads
-    if (!move_uploaded_file(
-        $_FILES["gambar"]["tmp_name"],
-        $path_file
-    )) {
-        die("Foto gagal disimpan.");
-    }
+                // Lokasi file
+                $path_file = $folder . $nama_file;
 
-    // Simpan informasi foto ke database
-    $stmt_lampiran = $conn->prepare("
-        INSERT INTO lampiran
-        (
-            id_pengaduan,
-            nama_file,
-            path_file,
-            tipe_file,
-            created_at
-        )
-        VALUES (?, ?, ?, ?, NOW())
-    ");
+                // Pindahkan file ke folder uploads
+                if (!move_uploaded_file(
+                    $_FILES["gambar"]["tmp_name"],
+                    $path_file
+                )) {
+                    die("Foto gagal disimpan.");
+                }
 
-    $path_database = "uploads/pengaduan/" . $nama_file;
+                // Simpan informasi foto ke database
+                $stmt_lampiran = $conn->prepare("
+                    INSERT INTO lampiran
+                    (
+                        id_pengaduan,
+                        nama_file,
+                        path_file,
+                        tipe_file,
+                        created_at
+                    )
+                    VALUES (?, ?, ?, ?, NOW())
+                ");
 
-    $stmt_lampiran->bind_param(
-        "isss",
-        $id_pengaduan,
-        $_FILES["gambar"]["name"],
-        $path_database,
-        $file_type
-    );
+                $path_database = "uploads/pengaduan/" . $nama_file;
 
-    $stmt_lampiran->execute();
-}
+                $stmt_lampiran->bind_param(
+                    "isss",
+                    $id_pengaduan,
+                    $_FILES["gambar"]["name"],
+                    $path_database,
+                    $file_type
+                );
+
+                $stmt_lampiran->execute();
+            }
 
             /*
              * Simpan riwayat status pertama
@@ -272,13 +280,21 @@ $kategori = $conn->query("
     </div>
 
 
-    <?php if ($success): ?>
+  <?php if ($success): ?>
 
-        <div class="success-message">
+    <div class="success-message" id="successMessage">
 
+        <span>
             <?= htmlspecialchars($success); ?>
+        </span>
 
-        </div>
+        <a href="pengaduan_saya.php">
+            Lihat Pengaduan Saya
+        </a>
+
+    </div>
+
+<?php endif; ?>
 
     <?php endif; ?>
 
@@ -302,12 +318,13 @@ $kategori = $conn->query("
 
             <div class="form-group">
 
-                <label>
+                <label for="id_kategori">
                     Kategori Pengaduan
                 </label>
 
                 <select
                     name="id_kategori"
+                    id="id_kategori"
                     required
                 >
 
@@ -338,13 +355,14 @@ $kategori = $conn->query("
 
             <div class="form-group">
 
-                <label>
+                <label for="judul">
                     Judul Pengaduan
                 </label>
 
                 <input
                     type="text"
                     name="judul"
+                    id="judul"
                     placeholder="Contoh: Kursi kelas rusak"
                     maxlength="150"
                     required
@@ -357,13 +375,14 @@ $kategori = $conn->query("
 
             <div class="form-group">
 
-                <label>
+                <label for="lokasi">
                     Lokasi Kejadian
                 </label>
 
                 <input
                     type="text"
                     name="lokasi"
+                    id="lokasi"
                     placeholder="Contoh: Ruang Kelas XI RPL"
                     maxlength="150"
                     required
@@ -376,12 +395,13 @@ $kategori = $conn->query("
 
             <div class="form-group">
 
-                <label>
+                <label for="isi_pengaduan">
                     Isi Pengaduan
                 </label>
 
                 <textarea
                     name="isi_pengaduan"
+                    id="isi_pengaduan"
                     rows="7"
                     placeholder="Jelaskan pengaduan secara detail..."
                     required
@@ -389,19 +409,28 @@ $kategori = $conn->query("
 
             </div>
 
+
+            <!-- FOTO -->
+
             <div class="form-group">
-                <label for="gambar">Foto Bukti</label>
+
+                <label for="gambar">
+                    Foto Bukti
+                </label>
 
                 <input
                     type="file"
                     name="gambar"
                     id="gambar"
-                    accept="image/jpeg,image/png,image/webp">
+                    accept="image/jpeg,image/png,image/webp"
+                >
 
                 <small>
                     Upload foto sebagai bukti pengaduan. Maksimal 5 MB.
                 </small>
+
             </div>
+
 
             <!-- BUTTON -->
 
@@ -428,6 +457,8 @@ $kategori = $conn->query("
     </div>
 
 </main>
+
+<script src="../asests/js/logout.js"></script>
 
 </body>
 

@@ -331,6 +331,8 @@ $query = $conn->query("
 
 </main>
 
+<script src="../asests/js/logout.js"></script>
+
 </body>
 
 </html>

@@ -932,6 +932,8 @@ $tanggapan = $stmt_tanggapan->get_result();
 
 </main>
 
+<script src="../asests/js/logout.js"></script>
+
 </body>
 
 </html>

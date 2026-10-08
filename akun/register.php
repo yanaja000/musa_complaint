@@ -335,7 +335,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     name="password"
                     placeholder="Minimal 6 karakter"
                     required
+                    
                 >
+
+                
 
             </div>
 

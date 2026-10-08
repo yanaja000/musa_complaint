@@ -161,10 +161,9 @@ $tanggapan = $stmt_tanggapan->get_result();
 
 <main class="container">
 
-    <a href="pengaduan_saya.php" class="back">
-        ← Kembali ke Pengaduan Saya
+    <a href="pengaduan_saya.php" class="back-button">
+        ← Kembali ke Pengaduan saya
     </a>
-
 
     <!-- HEADER -->
 
@@ -426,6 +425,8 @@ $tanggapan = $stmt_tanggapan->get_result();
     </section>
 
 </main>
+
+<script src="../asests/js/logout.js"></script>
 
 </body>
 </html>

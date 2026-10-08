@@ -5,11 +5,21 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 
+
+/* =========================================
+   RESET
+========================================= */
+
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
+
+
+/* =========================================
+   BODY
+========================================= */
 
 body {
     font-family: "Poppins", Arial, sans-serif;
@@ -18,13 +28,15 @@ body {
     min-height: 100vh;
 }
 
-/* =========================
+
+/* =========================================
    NAVBAR
-========================= */
+========================================= */
 
 .dashboard-navbar {
     width: 100%;
     min-height: 70px;
+
     background: #ffffff;
     border-bottom: 1px solid #e2e8f0;
 
@@ -37,22 +49,30 @@ body {
     position: sticky;
     top: 0;
     z-index: 100;
+
     backdrop-filter: blur(8px);
 }
 
+
 .dashboard-logo {
     color: #2563eb;
+
     font-size: 20px;
     font-weight: 700;
+
     letter-spacing: -0.3px;
+
     text-decoration: none;
+
     display: inline-flex;
     align-items: center;
 }
 
+
 .dashboard-logo span {
     color: #1e3a8a;
 }
+
 
 .dashboard-menu {
     display: flex;
@@ -60,11 +80,14 @@ body {
     gap: 6px;
 }
 
+
 .dashboard-menu a {
     display: inline-flex;
     align-items: center;
     justify-content: center;
+
     padding: 8px 16px;
+
     border-radius: 8px;
 
     color: #475569;
@@ -76,15 +99,18 @@ body {
     transition: all 0.2s ease-in-out;
 }
 
+
 .dashboard-menu a:hover,
 .dashboard-menu a.active {
     color: #2563eb;
     background-color: #eff6ff;
 }
 
+
 .dashboard-menu a.active {
     font-weight: 600;
 }
+
 
 /* =========================================
    CONTAINER
@@ -93,9 +119,12 @@ body {
 .complaint-container {
     width: 100%;
     max-width: 850px;
+
     margin: 0 auto;
+
     padding: 55px 20px 70px;
 }
+
 
 /* =========================================
    HEADER
@@ -106,28 +135,39 @@ body {
     margin-bottom: 30px;
 }
 
+
 .complaint-header p {
     color: #1769e0;
+
     font-size: 13px;
     font-weight: 600;
+
     margin-bottom: 8px;
+
     text-transform: uppercase;
     letter-spacing: 1px;
 }
 
+
 .complaint-header h1 {
     color: #172033;
+
     font-size: 32px;
     font-weight: 700;
+
     margin-bottom: 10px;
 }
 
+
 .complaint-header span {
     display: block;
+
     color: #6b7688;
+
     font-size: 14px;
     line-height: 1.7;
 }
+
 
 /* =========================================
    MESSAGE
@@ -136,97 +176,174 @@ body {
 .success-message,
 .error-message {
     padding: 14px 18px;
+
     border-radius: 10px;
+
     margin-bottom: 20px;
+
     font-size: 14px;
     font-weight: 500;
 }
 
+
 .success-message {
     background: #eaf2ff;
     color: #1769e0;
+
     border: 1px solid #cddfff;
 }
+
 
 .error-message {
     background: #f1f5ff;
     color: #2454a6;
+
     border: 1px solid #d6e2ff;
 }
+
 
 /* =========================================
    FORM CARD
 ========================================= */
 
 .complaint-form-card {
+    width: 100%;
+
     background: #ffffff;
+
     border: 1px solid #e4eaf5;
     border-radius: 16px;
+
     padding: 35px;
+
     box-shadow: 0 8px 30px rgba(23, 105, 224, 0.06);
+
+    /*
+     * Mencegah efek focus atau elemen form
+     * keluar dari batas card.
+     */
+    overflow: hidden;
 }
+
+
+.complaint-form-card form {
+    width: 100%;
+}
+
 
 /* =========================================
    FORM GROUP
 ========================================= */
 
 .form-group {
+    width: 100%;
+
     margin-bottom: 23px;
 }
 
+
 .form-group label {
     display: block;
+
     margin-bottom: 9px;
+
     color: #172033;
+
     font-size: 14px;
     font-weight: 600;
 }
 
+
 /* =========================================
-   INPUT
+   INPUT / SELECT / TEXTAREA
 ========================================= */
 
 .form-group input,
 .form-group select,
 .form-group textarea {
+    display: block;
+
     width: 100%;
+    max-width: 100%;
+
     border: 1px solid #d9e1ee;
     border-radius: 9px;
+
     padding: 13px 15px;
+
     background: #ffffff;
     color: #172033;
+
     font-family: "Poppins", Arial, sans-serif;
     font-size: 14px;
+
     outline: none;
-    transition: 0.25s ease;
+
+    /*
+     * Menghilangkan appearance bawaan browser
+     * yang kadang membuat garis tambahan.
+     */
+    -webkit-appearance: none;
+    appearance: none;
+
+    transition:
+        border-color 0.2s ease,
+        background-color 0.2s ease;
 }
+
+
+/* =========================================
+   PLACEHOLDER
+========================================= */
 
 .form-group input::placeholder,
 .form-group textarea::placeholder {
     color: #9aa5b5;
 }
 
+
+/* =========================================
+   INPUT & SELECT HEIGHT
+========================================= */
+
 .form-group input,
 .form-group select {
     height: 48px;
 }
 
+
+/* =========================================
+   TEXTAREA
+========================================= */
+
 .form-group textarea {
     min-height: 160px;
+
     resize: vertical;
+
     line-height: 1.6;
 }
 
+
 /* =========================================
    FOCUS
+   FIX GARIS DI SISI INPUT
 ========================================= */
 
 .form-group input:focus,
 .form-group select:focus,
 .form-group textarea:focus {
     border-color: #1769e0;
-    box-shadow: 0 0 0 3px rgba(23, 105, 224, 0.10);
+
+    /*
+     * Efek berada DI DALAM input,
+     * bukan keluar seperti box-shadow 0 0 0 3px.
+     */
+    box-shadow: inset 0 0 0 1px #1769e0;
+
+    outline: none;
 }
+
 
 /* =========================================
    SELECT
@@ -236,57 +353,167 @@ body {
     cursor: pointer;
 }
 
+
+/* =========================================
+   FILE INPUT
+========================================= */
+
+.form-group input[type="file"] {
+    height: auto;
+
+    padding: 11px 13px;
+
+    cursor: pointer;
+
+    background: #ffffff;
+}
+
+
+.form-group input[type="file"]::file-selector-button {
+    border: 1px solid #d9e1ee;
+
+    background: #f5f8ff;
+    color: #1769e0;
+
+    padding: 8px 12px;
+
+    margin-right: 10px;
+
+    border-radius: 7px;
+
+    font-family: "Poppins", Arial, sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+
+    cursor: pointer;
+}
+
+
+.form-group input[type="file"]::file-selector-button:hover {
+    background: #eff6ff;
+}
+
+
+/* =========================================
+   SMALL TEXT
+========================================= */
+
+.form-group small {
+    display: block;
+
+    margin-top: 7px;
+
+    color: #7b8798;
+
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+
 /* =========================================
    BUTTON
 ========================================= */
 
 .complaint-actions {
     display: flex;
+
     justify-content: flex-end;
     align-items: center;
+
     gap: 12px;
+
     margin-top: 30px;
 }
+
 
 .primary-button,
 .secondary-button {
     display: inline-flex;
+
     align-items: center;
     justify-content: center;
+
     min-height: 46px;
+
     padding: 0 20px;
+
     border-radius: 9px;
+
     font-family: "Poppins", Arial, sans-serif;
+
     font-size: 14px;
     font-weight: 600;
+
     text-decoration: none;
+
     cursor: pointer;
-    transition: 0.25s ease;
+
+    transition:
+        background-color 0.2s ease,
+        border-color 0.2s ease,
+        color 0.2s ease,
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
 }
+
+
+/* =========================================
+   PRIMARY BUTTON
+========================================= */
 
 .primary-button {
     border: none;
+
     background: #1769e0;
     color: #ffffff;
 }
 
+
 .primary-button:hover {
     background: #1258bd;
+
     transform: translateY(-1px);
+
     box-shadow: 0 6px 16px rgba(23, 105, 224, 0.20);
 }
 
+
+.primary-button:focus {
+    outline: none;
+
+    box-shadow:
+        0 0 0 2px #ffffff,
+        0 0 0 3px rgba(23, 105, 224, 0.35);
+}
+
+
+/* =========================================
+   SECONDARY BUTTON
+========================================= */
+
 .secondary-button {
     border: 1px solid #d9e1ee;
+
     background: #ffffff;
     color: #596579;
 }
 
+
 .secondary-button:hover {
     border-color: #1769e0;
+
     color: #1769e0;
+
     background: #f5f9ff;
 }
+
+
+.secondary-button:focus {
+    outline: none;
+
+    border-color: #1769e0;
+}
+
 
 /* =========================================
    RESPONSIVE
@@ -298,27 +525,33 @@ body {
         padding: 0 16px;
     }
 
+
     .dashboard-menu {
         gap: 2px;
     }
+
 
     .dashboard-menu a {
         font-size: 13px;
         padding: 8px 10px;
     }
 
+
     .complaint-container {
         padding: 35px 15px 50px;
     }
+
 
     .complaint-header h1 {
         font-size: 27px;
     }
 
+
     .complaint-form-card {
         padding: 25px 20px;
     }
 }
+
 
 @media (max-width: 480px) {
 
@@ -326,19 +559,25 @@ body {
         font-size: 24px;
     }
 
+
     .complaint-header span {
         font-size: 13px;
     }
 
+
     .complaint-form-card {
         padding: 20px 16px;
+
         border-radius: 12px;
     }
 
+
     .complaint-actions {
         flex-direction: column-reverse;
+
         width: 100%;
     }
+
 
     .primary-button,
     .secondary-button {

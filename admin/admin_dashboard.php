@@ -399,7 +399,7 @@ $query_pengaduan = $conn->query("
                             <td>
 
                                 <a
-                                    href="#"
+                                    href="detail_pengaduan.php?"
                                     class="detail-button"
                                 >
                                     Detail
@@ -435,6 +435,8 @@ $query_pengaduan = $conn->query("
     </section>
 
 </main>
+
+<script src="../asests/js/logout.js"></script>
 
 </body>
 
