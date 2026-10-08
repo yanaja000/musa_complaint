@@ -296,9 +296,6 @@ $kategori = $conn->query("
 
 <?php endif; ?>
 
-    <?php endif; ?>
-
-
     <?php if ($error): ?>
 
         <div class="error-message">
