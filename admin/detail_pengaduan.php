@@ -5,6 +5,10 @@ require_once "../config/session.php";
 
 requireRole("admin");
 
+if (empty($_SESSION["csrf_token"])) {
+    $_SESSION["csrf_token"] = bin2hex(random_bytes(32));
+}
+
 /* =========================
    CEK ID PENGADUAN
 ========================= */
@@ -17,6 +21,102 @@ if (!isset($_GET["id"]) || !is_numeric($_GET["id"])) {
 $id_pengaduan = (int) $_GET["id"];
 
 $id_admin = (int) $_SESSION["user_id"];
+$hapus_error = "";
+
+
+/* =========================
+   PROSES HAPUS PENGADUAN
+========================= */
+
+if (
+    $_SERVER["REQUEST_METHOD"] === "POST"
+    && isset($_POST["hapus_pengaduan"])
+) {
+    if (
+        !isset($_POST["csrf_token"])
+        || !is_string($_POST["csrf_token"])
+        || !hash_equals($_SESSION["csrf_token"], $_POST["csrf_token"])
+    ) {
+        http_response_code(403);
+        exit("Permintaan tidak valid.");
+    }
+
+    mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
+
+    $files = [];
+    $transaction_started = false;
+
+    try {
+        $stmt_files = $conn->prepare("
+            SELECT path_file
+            FROM lampiran
+            WHERE id_pengaduan = ?
+        ");
+        $stmt_files->bind_param("i", $id_pengaduan);
+        $stmt_files->execute();
+        $files = $stmt_files->get_result()->fetch_all(MYSQLI_ASSOC);
+        $stmt_files->close();
+
+        $conn->begin_transaction();
+        $transaction_started = true;
+
+        foreach (["lampiran", "tanggapan", "riwayat_status"] as $table) {
+            $stmt_delete = $conn->prepare(
+                "DELETE FROM {$table} WHERE id_pengaduan = ?"
+            );
+            $stmt_delete->bind_param("i", $id_pengaduan);
+            $stmt_delete->execute();
+            $stmt_delete->close();
+        }
+
+        $stmt_delete_pengaduan = $conn->prepare("
+            DELETE FROM pengaduan
+            WHERE id_pengaduan = ?
+        ");
+        $stmt_delete_pengaduan->bind_param("i", $id_pengaduan);
+        $stmt_delete_pengaduan->execute();
+
+        if ($stmt_delete_pengaduan->affected_rows !== 1) {
+            throw new RuntimeException("Pengaduan tidak ditemukan.");
+        }
+
+        $stmt_delete_pengaduan->close();
+        $conn->commit();
+        $transaction_started = false;
+    } catch (Throwable $e) {
+        if ($transaction_started) {
+            $conn->rollback();
+        }
+
+        error_log("Hapus pengaduan admin gagal: " . $e->getMessage());
+        $hapus_error = "Pengaduan gagal dihapus. Silakan coba lagi.";
+    }
+
+    if ($hapus_error === "") {
+        $folder_upload = realpath(__DIR__ . "/../uploads/pengaduan");
+
+        foreach ($files as $file) {
+            if (!isset($file["path_file"]) || !is_string($file["path_file"])) {
+                continue;
+            }
+
+            $file_path = realpath(__DIR__ . "/../" . $file["path_file"]);
+
+            if (
+                $folder_upload !== false
+                && $file_path !== false
+                && strpos($file_path, $folder_upload . DIRECTORY_SEPARATOR) === 0
+                && is_file($file_path)
+                && !unlink($file_path)
+            ) {
+                error_log("Gagal menghapus file lampiran pengaduan: " . $file_path);
+            }
+        }
+
+        header("Location: pengaduan.php");
+        exit;
+    }
+}
 
 
 /* =========================
@@ -386,28 +486,58 @@ $tanggapan = $stmt_tanggapan->get_result();
 
     <!-- HEADER -->
 
-    <div class="page-header">
+<div class="page-header">
 
-        <div>
+    <div class="page-top">
 
-            <a
-                href="pengaduan.php"
-                class="back-button"
+        <a
+            href="pengaduan.php"
+            class="back-button"
+        >
+            ← Kembali ke Pengaduan
+        </a>
+
+        <form method="post" id="formHapus">
+
+            <input
+                type="hidden"
+                name="csrf_token"
+                value="<?= htmlspecialchars(
+                    $_SESSION["csrf_token"],
+                    ENT_QUOTES,
+                    "UTF-8"
+                ); ?>"
             >
-                ← Kembali ke Pengaduan
-            </a>
 
-            <h1>
-                Detail Pengaduan
-            </h1>
+            <input type="hidden" name="hapus_pengaduan" value="1">
 
-            <p>
-                Informasi lengkap pengaduan siswa.
-            </p>
+            <button
+                type="submit"
+                class="btn-delete"
+                onclick="return confirm('Yakin ingin menghapus pengaduan ini?')"
+            >
+                Hapus Pengaduan
+            </button>
 
-        </div>
+        </form>
 
     </div>
+
+    <?php if ($hapus_error !== ""): ?>
+        <p class="delete-error" role="alert">
+            <?= htmlspecialchars($hapus_error, ENT_QUOTES, "UTF-8"); ?>
+        </p>
+    <?php endif; ?>
+
+    <h1>
+        Detail Pengaduan
+    </h1>
+
+    <p>
+        Informasi lengkap pengaduan siswa.
+    </p>
+
+</div>
 
 
     <!-- =========================

@@ -129,7 +129,7 @@ $query_pengaduan = $conn->query("
 
     <div class="nav-menu">
 
-        <a href="admin_dashboard.php">
+        <a href="admin_dashboard.php" class="active">
             Dashboard
         </a>
 
@@ -306,9 +306,6 @@ $query_pengaduan = $conn->query("
                             Tanggal
                         </th>
 
-                        <th>
-                            Aksi
-                        </th>
 
                     </tr>
 
@@ -396,16 +393,7 @@ $query_pengaduan = $conn->query("
                             </td>
 
 
-                            <td>
-
-                                <a
-                                    href="detail_pengaduan.php?"
-                                    class="detail-button"
-                                >
-                                    Detail
-                                </a>
-
-                            </td>
+                            
 
                         </tr>
 
