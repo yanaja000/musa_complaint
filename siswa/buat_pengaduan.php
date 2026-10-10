@@ -230,7 +230,7 @@ $kategori = $conn->query("
 <nav class="dashboard-navbar">
 
     <div class="dashboard-logo">
-        Musa <span>Complaint</span>
+        MUSA <span>Complaint</span>
     </div>
 
     <div class="dashboard-menu">
@@ -288,7 +288,7 @@ $kategori = $conn->query("
             <?= htmlspecialchars($success); ?>
         </span>
 
-        <a href="pengaduan_saya.php">
+        <a>
             Lihat Pengaduan Saya
         </a>
 

@@ -147,7 +147,7 @@ $pengaduan = $stmt->get_result();
 <main class="container">
 
     <a href="siswa.php" class="back-button">
-        ← Kembali ke Data Siswa
+        Kembali ke Data Siswa
     </a>
 
 

@@ -514,7 +514,6 @@ $tanggapan = $stmt_tanggapan->get_result();
             <button
                 type="submit"
                 class="btn-delete"
-                onclick="return confirm('Yakin ingin menghapus pengaduan ini?')"
             >
                 Hapus Pengaduan
             </button>
@@ -1063,6 +1062,7 @@ $tanggapan = $stmt_tanggapan->get_result();
 </main>
 
 <script src="../asests/js/logout.js"></script>
+<script src="../asests/js/hapus_pengaduan.js"></script>
 
 </body>
 

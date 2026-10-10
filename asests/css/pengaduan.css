@@ -111,6 +111,18 @@ body {
     font-weight: 600;
 }
 
+.dashboard-menu a[href$="logout.php"] {
+    color: #dc2626;
+    background: #ffffff;
+    border: 1px solid #dc2626;
+    border-radius: 8px;
+}
+
+.dashboard-menu a[href$="logout.php"]:hover {
+    color: #b91c1c;
+    background: #fef2f2;
+    border-color: #b91c1c;
+}
 
 /* =========================================
    CONTAINER

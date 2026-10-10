@@ -60,6 +60,21 @@ body {
     color: #2563eb;
 }
 
+.nav-menu a[href$="logout.php"] {
+    padding: 8px 18px;
+    color: #dc2626;
+    background: #ffffff;
+    border: 1px solid #dc2626;
+    border-radius: 8px;
+    transition: 0.2s ease;
+}
+
+.nav-menu a[href$="logout.php"]:hover {
+    color: #b91c1c;
+    background: #fef2f2;
+    border-color: #b91c1c;
+}
+
 
 /* =========================
    CONTAINER
