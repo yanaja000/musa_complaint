@@ -51,6 +51,52 @@ $pengaduan = $result->fetch_assoc();
 
 
 /* =========================================
+   TANDAI SUDAH DIBACA
+   (updated_at = updated_at supaya waktu update admin tidak ikut berubah)
+========================================= */
+
+$stmt_baca = $conn->prepare("
+    UPDATE pengaduan
+    SET dilihat_siswa_at = NOW(),
+        updated_at = updated_at
+    WHERE id_pengaduan = ?
+    AND id_siswa = ?
+");
+
+$stmt_baca->bind_param("ii", $id_pengaduan, $id_siswa);
+$stmt_baca->execute();
+
+/* =========================================
+   WARNA BADGE STATUS
+========================================= */
+
+if (!function_exists("kelasBadgeStatus")) {
+
+    function kelasBadgeStatus($nama_status)
+    {
+        switch (strtolower(trim($nama_status))) {
+
+            case "menunggu":
+                return "bg-warning text-dark";     // kuning
+
+            case "diproses":
+                return "bg-info text-white";       // cyan
+
+            case "selesai":
+                return "bg-success text-white";    // hijau
+
+            case "ditolak":
+                return "bg-danger text-white";     // merah
+
+            default:
+                return "bg-secondary text-white";  // status lain
+        }
+    }
+}
+
+
+
+/* =========================================
    RIWAYAT STATUS
 ========================================= */
 
@@ -126,37 +172,6 @@ $tanggapan = $stmt_tanggapan->get_result();
 <body>
 
 
-<!-- ================= NAVBAR ================= -->
-
-<nav class="navbar">
-
-    <div class="logo">
-        MUSA <span>Complaint</span>
-    </div>
-
-    <div class="menu">
-
-        <a href="siswa_dashboard.php">
-            Dashboard
-        </a>
-
-        <a href="buat_pengaduan.php">
-            Buat Pengaduan
-        </a>
-
-        <a href="pengaduan_saya.php">
-            Pengaduan Saya
-        </a>
-
-        <a href="../akun/logout.php">
-            Logout
-        </a>
-
-    </div>
-
-</nav>
-
-
 <!-- ================= CONTENT ================= -->
 
 <main class="container">
@@ -181,7 +196,7 @@ $tanggapan = $stmt_tanggapan->get_result();
 
         </div>
 
-        <span class="status">
+        <span class="status <?= kelasBadgeStatus($pengaduan["nama_status"]); ?>">
             <?= htmlspecialchars($pengaduan["nama_status"]); ?>
         </span>
 
@@ -425,6 +440,8 @@ $tanggapan = $stmt_tanggapan->get_result();
     </section>
 
 </main>
+
+<?php include "bottom-nav.php"; ?>
 
 <script src="../asests/js/logout.js"></script>
 

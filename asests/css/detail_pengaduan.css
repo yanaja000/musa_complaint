@@ -507,3 +507,13 @@ body {
     white-space: nowrap !important;
     text-overflow: ellipsis !important;
 }
+
+/* =========================================================
+   WARNA STATUS DINAMIS
+========================================================= */
+
+.status.bg-warning   { background: #ffc107; color: #1f2937; }
+.status.bg-info      { background: #0891b2; color: #ffffff; }
+.status.bg-success   { background: #16a34a; color: #ffffff; }
+.status.bg-danger    { background: #dc2626; color: #ffffff; }
+.status.bg-secondary { background: #6b7280; color: #ffffff; }

@@ -151,6 +151,34 @@ if (isset($_GET["hapus"]) && $_GET["hapus"] === "berhasil") {
     $pesan_tipe = "success";
 }
 
+/* =========================================
+   WARNA BADGE STATUS
+========================================= */
+
+if (!function_exists("kelasBadgeStatus")) {
+
+    function kelasBadgeStatus($nama_status)
+    {
+        switch (strtolower(trim($nama_status))) {
+
+            case "menunggu":
+                return "bg-warning text-dark";     // kuning
+
+            case "diproses":
+                return "bg-info text-white";       // cyan
+
+            case "selesai":
+                return "bg-success text-white";    // hijau
+
+            case "ditolak":
+                return "bg-danger text-white";     // merah
+
+            default:
+                return "bg-secondary text-white";  // status lain
+        }
+    }
+}
+
 /* Ambil pengaduan milik siswa yang sedang login */
 $stmt = $conn->prepare("
     SELECT
@@ -162,7 +190,18 @@ $stmt = $conn->prepare("
         p.created_at,
 
         k.nama_kategori,
-        s.nama_status
+        s.nama_status,
+
+        /* 1 = ada pembaruan admin yang belum dibuka siswa */
+        (
+            p.updated_at > COALESCE(p.dilihat_siswa_at, p.created_at)
+            OR EXISTS (
+                SELECT 1
+                FROM tanggapan t
+                WHERE t.id_pengaduan = p.id_pengaduan
+                AND t.created_at > COALESCE(p.dilihat_siswa_at, p.created_at)
+            )
+        ) AS belum_dibaca
     FROM pengaduan p
     JOIN kategori k
         ON p.id_kategori = k.id_kategori
@@ -206,37 +245,6 @@ $result = $stmt->get_result();
 </head>
 
 <body>
-
-<!-- NAVBAR -->
-
-<nav class="dashboard-navbar">
-
-    <div class="dashboard-logo">
-        MUSA <span>Complaint</span>
-    </div>
-
-    <div class="dashboard-menu">
-
-        <a href="siswa_dashboard.php">
-            Dashboard
-        </a>
-
-        <a href="buat_pengaduan.php">
-            Buat Pengaduan
-        </a>
-
-        <a href="pengaduan_saya.php" class="active">
-            Pengaduan Saya
-        </a>
-
-        <a href="../akun/logout.php">
-            Logout
-        </a>
-
-    </div>
-
-</nav>
-
 
 <!-- CONTENT -->
 
@@ -296,8 +304,16 @@ $result = $stmt->get_result();
 
                         </div>
 
-                        <span class="status">
+                        <span class="status <?= kelasBadgeStatus($row["nama_status"]); ?>">
+
                             <?= htmlspecialchars($row["nama_status"]); ?>
+
+                            <?php if (!empty($row["belum_dibaca"])): ?>
+                                <i class="unread-dot"
+                                   title="Ada pembaruan dari admin"></i>
+                                <span class="visually-hidden-text">Ada pembaruan baru</span>
+                            <?php endif; ?>
+
                         </span>
 
                     </div>
@@ -491,6 +507,8 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 });
 </script>
+
+<?php include "bottom-nav.php"; ?>
 
 <script src="../asests/js/logout.js"></script>
 

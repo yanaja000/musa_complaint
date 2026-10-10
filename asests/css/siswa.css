@@ -462,3 +462,83 @@ body {
     }
 
 }
+
+
+/* =========================================================
+   DASHBOARD SISWA - kartu statistik berwarna & badge status
+   (dimuat setelah siswa.css, jadi aman menimpa gaya lama)
+========================================================= */
+
+/* ---------- 5 kartu statistik ---------- */
+
+.dashboard-stats {
+    grid-template-columns: repeat(5, 1fr);
+    gap: 14px;
+}
+
+.stat-card {
+    padding: 18px;
+    border-left-width: 4px;
+}
+
+.stat-icon {
+    flex-shrink: 0;
+    font-size: 19px;
+}
+
+/* ---------- Warna per kartu ---------- */
+
+.stat-total   { border-left-color: #2563eb; }
+.stat-warning { border-left-color: #f59e0b; }
+.stat-info    { border-left-color: #06b6d4; }
+.stat-success { border-left-color: #16a34a; }
+.stat-danger  { border-left-color: #dc2626; }
+
+.stat-total   .stat-icon { background: #dbeafe; color: #2563eb; }
+.stat-warning .stat-icon { background: #fef3c7; color: #d97706; }
+.stat-info    .stat-icon { background: #cffafe; color: #0891b2; }
+.stat-success .stat-icon { background: #dcfce7; color: #16a34a; }
+.stat-danger  .stat-icon { background: #fee2e2; color: #dc2626; }
+
+/* ---------- Badge status (nama kelas sama dengan Bootstrap) ---------- */
+
+.complaint-status span.bg-warning   { background: #ffc107; color: #1f2937; }
+.complaint-status span.bg-info      { background: #0891b2; color: #ffffff; }
+.complaint-status span.bg-success   { background: #16a34a; color: #ffffff; }
+.complaint-status span.bg-danger    { background: #dc2626; color: #ffffff; }
+.complaint-status span.bg-secondary { background: #6b7280; color: #ffffff; }
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 1024px) {
+
+    /* 2 kolom: "Total" selebar penuh, 4 status di bawahnya rapi 2x2 */
+    .dashboard-stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .dashboard-stats .stat-card:first-child {
+        grid-column: 1 / -1;
+    }
+}
+
+@media (max-width: 520px) {
+
+    /* tetap 2 kolom di HP supaya tidak memanjang ke bawah */
+    .dashboard-stats {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+
+    .stat-card {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+        padding: 14px;
+    }
+
+    .dashboard-stats .stat-card:first-child {
+        flex-direction: row;
+        align-items: center;
+    }
+}

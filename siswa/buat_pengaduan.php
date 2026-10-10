@@ -10,6 +10,11 @@ $id_siswa = $_SESSION["user_id"];
 $success = "";
 $error = "";
 
+
+if (isset($_GET["sukses"])) {
+    $success = "Pengaduan berhasil dikirim.";
+}
+
 /* =========================================
    PROSES KIRIM PENGADUAN
 ========================================= */
@@ -176,7 +181,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
             $riwayat->execute();
 
-            $success = "Pengaduan berhasil dikirim.";
+            /* Redirect agar refresh halaman tidak menyimpan pengaduan yang sama lagi */
+            header("Location: buat_pengaduan.php?sukses=1");
+            exit;
 
         } else {
 
@@ -222,39 +229,6 @@ $kategori = $conn->query("
 </head>
 
 <body>
-
-<!-- =========================================
-     NAVBAR
-========================================= -->
-
-<nav class="dashboard-navbar">
-
-    <div class="dashboard-logo">
-        MUSA <span>Complaint</span>
-    </div>
-
-    <div class="dashboard-menu">
-
-        <a href="siswa_dashboard.php">
-            Dashboard
-        </a>
-
-        <a href="buat_pengaduan.php" class="active">
-            Buat Pengaduan
-        </a>
-
-        <a href="pengaduan_saya.php">
-            Pengaduan Saya
-        </a>
-
-        <a href="../akun/logout.php">
-            Logout
-        </a>
-
-    </div>
-
-</nav>
-
 
 <!-- =========================================
      FORM
@@ -454,6 +428,8 @@ $kategori = $conn->query("
     </div>
 
 </main>
+
+<?php include "bottom-nav.php"; ?>
 
 <script src="../asests/js/logout.js"></script>
 

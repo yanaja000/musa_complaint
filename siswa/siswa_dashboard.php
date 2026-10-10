@@ -69,6 +69,49 @@ $stmt->execute();
 $selesai = $stmt->get_result()->fetch_assoc()["jumlah"];
 
 
+/* Pengaduan ditolak (dicari lewat nama status, jadi tidak tergantung nomor id) */
+
+$stmt = $conn->prepare("
+    SELECT COUNT(*) AS jumlah
+    FROM pengaduan p
+    JOIN status_pengaduan s
+        ON p.id_status = s.id_status
+    WHERE p.id_siswa = ?
+    AND s.nama_status = 'Ditolak'
+");
+
+$stmt->bind_param("i", $id_siswa);
+$stmt->execute();
+
+$ditolak = $stmt->get_result()->fetch_assoc()["jumlah"];
+
+
+/* =========================================
+   WARNA BADGE STATUS
+========================================= */
+
+function kelasBadgeStatus($nama_status)
+{
+    switch (strtolower(trim($nama_status))) {
+
+        case "menunggu":
+            return "bg-warning text-dark";     // kuning
+
+        case "diproses":
+            return "bg-info text-white";       // cyan
+
+        case "selesai":
+            return "bg-success text-white";    // hijau
+
+        case "ditolak":
+            return "bg-danger text-white";     // merah
+
+        default:
+            return "bg-secondary text-white";  // status lain
+    }
+}
+
+
 /* =========================================
    PENGADUAN TERBARU
 ========================================= */
@@ -111,44 +154,14 @@ $pengaduan = $stmt->get_result();
     <title>Dashboard Siswa - MUSA Complaint</title>
 
     <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <link rel="stylesheet"
           href="../asests/css/siswa.css">
 
 </head>
 
 <body>
-
-<!-- =========================================
-     NAVBAR
-========================================= -->
-
-<nav class="dashboard-navbar">
-
-    <div class="dashboard-logo">
-        MUSA <span>Complaint</span>
-    </div>
-
-    <div class="dashboard-menu">
-
-        <a href="siswa_dashboard.php" class="active">
-            Dashboard
-        </a>
-
-        <a href="buat_pengaduan.php">
-            Buat Pengaduan
-        </a>
-
-        <a href="pengaduan_saya.php">
-            Pengaduan Saya
-        </a>
-
-        <a href="../akun/logout.php">
-            Logout
-        </a>
-
-    </div>
-
-</nav>
-
 
 <!-- =========================================
      MAIN
@@ -193,10 +206,10 @@ $pengaduan = $stmt->get_result();
 
     <section class="dashboard-stats">
 
-        <div class="stat-card">
+        <div class="stat-card stat-total">
 
             <div class="stat-icon">
-                #
+                <i class="fas fa-file-alt" aria-hidden="true"></i>
             </div>
 
             <div>
@@ -214,10 +227,10 @@ $pengaduan = $stmt->get_result();
         </div>
 
 
-        <div class="stat-card">
+        <div class="stat-card stat-warning">
 
             <div class="stat-icon">
-                01
+                <i class="fas fa-clock" aria-hidden="true"></i>
             </div>
 
             <div>
@@ -235,10 +248,10 @@ $pengaduan = $stmt->get_result();
         </div>
 
 
-        <div class="stat-card">
+        <div class="stat-card stat-info">
 
             <div class="stat-icon">
-                02
+                <i class="fas fa-cogs" aria-hidden="true"></i>
             </div>
 
             <div>
@@ -256,10 +269,10 @@ $pengaduan = $stmt->get_result();
         </div>
 
 
-        <div class="stat-card">
+        <div class="stat-card stat-success">
 
             <div class="stat-icon">
-                ✓
+                <i class="fas fa-check-circle" aria-hidden="true"></i>
             </div>
 
             <div>
@@ -270,6 +283,27 @@ $pengaduan = $stmt->get_result();
 
                 <strong>
                     <?= $selesai; ?>
+                </strong>
+
+            </div>
+
+        </div>
+
+
+        <div class="stat-card stat-danger">
+
+            <div class="stat-icon">
+                <i class="fas fa-times-circle" aria-hidden="true"></i>
+            </div>
+
+            <div>
+
+                <span>
+                    Ditolak
+                </span>
+
+                <strong>
+                    <?= $ditolak; ?>
                 </strong>
 
             </div>
@@ -337,7 +371,7 @@ $pengaduan = $stmt->get_result();
 
                         <div class="complaint-status">
 
-                            <span>
+                            <span class="<?= kelasBadgeStatus($row["nama_status"]); ?>">
                                 <?= htmlspecialchars($row["nama_status"]); ?>
                             </span>
 
@@ -375,6 +409,9 @@ $pengaduan = $stmt->get_result();
     </section>
 
 </main>
+
+<!-- Bottom Navigation Bar -->
+<?php include "bottom-nav.php"; ?>
 
 <script src="../asests/js/logout.js"></script>
 
