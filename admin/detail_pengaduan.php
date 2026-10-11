@@ -234,9 +234,10 @@ if (
                 id_pengaduan,
                 id_admin,
                 isi_tanggapan,
+                pengirim,
                 created_at
             )
-            VALUES (?, ?, ?, NOW())
+            VALUES (?, ?, ?, 'admin', NOW())
         ");
 
         $stmt_tanggapan->bind_param(
@@ -388,17 +389,19 @@ $stmt_tanggapan = $conn->prepare("
     SELECT
         t.isi_tanggapan,
         t.created_at,
+        t.pengirim,
+        t.dihapus_siswa_at,
 
         a.nama AS nama_admin
 
     FROM tanggapan t
 
-    INNER JOIN admin a
+    LEFT JOIN admin a
         ON t.id_admin = a.id_admin
 
     WHERE t.id_pengaduan = ?
 
-    ORDER BY t.created_at DESC
+    ORDER BY t.created_at ASC, t.id_tanggapan ASC
 ");
 
 $stmt_tanggapan->bind_param(
@@ -1000,7 +1003,7 @@ $tanggapan = $stmt_tanggapan->get_result();
         <div class="card-title">
 
             <h2>
-                Tanggapan Admin
+                Percakapan dengan Siswa
             </h2>
 
         </div>
@@ -1014,14 +1017,16 @@ $tanggapan = $stmt_tanggapan->get_result();
                     $item = $tanggapan->fetch_assoc()
                 ): ?>
 
-                    <div class="response-item">
+                    <div class="response-item" <?= ($item["pengirim"] ?? "admin") === "siswa" ? 'style="background:#eff6ff;border-color:#bfdbfe"' : ""; ?>>
 
                         <div class="response-header">
 
                             <strong>
-                                <?= htmlspecialchars(
-                                    $item["nama_admin"]
-                                ); ?>
+                                <?php if (($item["pengirim"] ?? "admin") === "siswa"): ?>
+                                    <?= htmlspecialchars($pengaduan["nama_siswa"]); ?> (Siswa)
+                                <?php else: ?>
+                                    <?= htmlspecialchars($item["nama_admin"] ?? "Admin"); ?> (Admin)
+                                <?php endif; ?>
                             </strong>
 
                             <span>
@@ -1042,6 +1047,14 @@ $tanggapan = $stmt_tanggapan->get_result();
                                 )
                             ); ?>
                         </p>
+
+                        <?php if (!empty($item["dihapus_siswa_at"])): ?>
+                            <small style="color:#b91c1c;font-size:11px;">
+                                Dihapus oleh siswa pada
+                                <?= date("d/m/Y H:i", strtotime($item["dihapus_siswa_at"])); ?>
+                                (tidak terlihat lagi oleh siswa)
+                            </small>
+                        <?php endif; ?>
 
                     </div>
 

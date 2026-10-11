@@ -5,7 +5,17 @@ require_once "../config/session.php";
 
 requireRole("siswa");
 
-$id_siswa = $_SESSION["user_id"];
+$id_siswa = (int) $_SESSION["user_id"];
+$nama_siswa = $_SESSION["nama"] ?? "Kamu";
+
+if (empty($_SESSION["csrf_token"])) {
+    $_SESSION["csrf_token"] = bin2hex(random_bytes(32));
+}
+
+/* Pesan sukses/gagal dari kirim_balasan.php (sekali tampil) */
+
+$flash = $_SESSION["flash_balasan"] ?? null;
+unset($_SESSION["flash_balasan"]);
 
 if (!isset($_GET["id"]) || !is_numeric($_GET["id"])) {
     header("Location: pengaduan_saya.php");
@@ -80,6 +90,7 @@ if (!function_exists("kelasBadgeStatus")) {
                 return "bg-warning text-dark";     // kuning
 
             case "diproses":
+        case "ditanggapi":
                 return "bg-info text-white";       // cyan
 
             case "selesai":
@@ -122,25 +133,44 @@ $riwayat = $stmt_status->get_result();
 
 
 /* =========================================
-   TANGGAPAN ADMIN
+   THREAD TANGGAPAN (Admin & Siswa)
+   LEFT JOIN: balasan siswa tidak punya id_admin
 ========================================= */
 
 $stmt_tanggapan = $conn->prepare("
     SELECT
+        t.id_tanggapan,
         t.isi_tanggapan,
         t.created_at,
+        t.pengirim,
         a.nama AS nama_admin
     FROM tanggapan t
-    JOIN admin a
+    LEFT JOIN admin a
         ON t.id_admin = a.id_admin
     WHERE t.id_pengaduan = ?
-    ORDER BY t.created_at ASC
+    AND t.dihapus_siswa_at IS NULL
+    ORDER BY t.created_at ASC, t.id_tanggapan ASC
 ");
 
 $stmt_tanggapan->bind_param("i", $id_pengaduan);
 $stmt_tanggapan->execute();
 
-$tanggapan = $stmt_tanggapan->get_result();
+$thread = $stmt_tanggapan->get_result()->fetch_all(MYSQLI_ASSOC);
+
+/* Tanggapan admin terbaru (untuk kotak "Tanggapan Admin") */
+
+$tanggapan_admin_terakhir = null;
+
+foreach ($thread as $item) {
+    if (($item["pengirim"] ?? "admin") !== "siswa") {
+        $tanggapan_admin_terakhir = $item;
+    }
+}
+
+/* Form dikunci jika pengaduan sudah ditutup */
+
+$status_kecil = strtolower(trim($pengaduan["nama_status"]));
+$form_terkunci = in_array($status_kecil, ["selesai", "ditolak"], true);
 
 ?>
 
@@ -165,7 +195,13 @@ $tanggapan = $stmt_tanggapan->get_result();
           rel="stylesheet">
 
     <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <link rel="stylesheet"
           href="../asests/css/detail_pengaduan.css">
+
+    <link rel="stylesheet"
+          href="../asests/css/tanggapan.css">
 
 </head>
 
@@ -386,48 +422,34 @@ $tanggapan = $stmt_tanggapan->get_result();
     </section>
 
 
-    <!-- TANGGAPAN ADMIN -->
+    <!-- TANGGAPAN ADMIN (terbaru) -->
 
     <section class="card">
 
         <h2>Tanggapan Admin</h2>
 
-        <?php if ($tanggapan->num_rows > 0): ?>
+        <?php if ($tanggapan_admin_terakhir): ?>
 
-            <?php while ($row = $tanggapan->fetch_assoc()): ?>
+            <div class="response">
 
-                <div class="response">
+                <div class="response-header">
 
-                    <div class="response-header">
+                    <strong>
+                        <i class="fas fa-user-shield" aria-hidden="true"></i>
+                        <?= htmlspecialchars($tanggapan_admin_terakhir["nama_admin"] ?? "Admin"); ?>
+                    </strong>
 
-                        <strong>
-                            <?= htmlspecialchars(
-                                $row["nama_admin"]
-                            ); ?>
-                        </strong>
-
-                        <small>
-                            <?= date(
-                                "d-m-Y H:i",
-                                strtotime(
-                                    $row["created_at"]
-                                )
-                            ); ?>
-                        </small>
-
-                    </div>
-
-                    <p>
-                        <?= nl2br(
-                            htmlspecialchars(
-                                $row["isi_tanggapan"]
-                            )
-                        ); ?>
-                    </p>
+                    <small>
+                        <?= date("d-m-Y H:i", strtotime($tanggapan_admin_terakhir["created_at"])); ?>
+                    </small>
 
                 </div>
 
-            <?php endwhile; ?>
+                <p>
+                    <?= nl2br(htmlspecialchars($tanggapan_admin_terakhir["isi_tanggapan"])); ?>
+                </p>
+
+            </div>
 
         <?php else: ?>
 
@@ -439,11 +461,239 @@ $tanggapan = $stmt_tanggapan->get_result();
 
     </section>
 
+
+    <!-- RIWAYAT PERCAKAPAN + FORM BALASAN -->
+
+    <section class="card" id="konsultasi">
+
+        <h2>
+            <i class="fas fa-comments" aria-hidden="true"></i>
+            Riwayat Tanggapan
+        </h2>
+
+        <?php if ($flash): ?>
+
+            <div class="thread-alert thread-alert-<?= htmlspecialchars($flash["tipe"]); ?>" role="alert">
+                <?= htmlspecialchars($flash["pesan"]); ?>
+            </div>
+
+        <?php endif; ?>
+
+        <?php if (count($thread) > 0): ?>
+
+            <div class="thread">
+
+                <?php foreach ($thread as $item): ?>
+
+                    <?php
+                    $dari_siswa = ($item["pengirim"] ?? "admin") === "siswa";
+                    $nama_pengirim = $dari_siswa
+                        ? $nama_siswa . " (Kamu)"
+                        : ($item["nama_admin"] ?? "Admin");
+                    ?>
+
+                    <div class="thread-row <?= $dari_siswa ? "thread-siswa" : "thread-admin"; ?>">
+
+                        <div class="thread-bubble">
+
+                            <div class="thread-meta">
+
+                                <strong>
+                                    <i class="fas <?= $dari_siswa ? "fa-user" : "fa-user-shield"; ?>"
+                                       aria-hidden="true"></i>
+                                    <?= htmlspecialchars($nama_pengirim); ?>
+                                </strong>
+
+                                <span class="thread-role">
+                                    <?= $dari_siswa ? "Siswa" : "Admin"; ?>
+                                </span>
+
+                                <?php if ($dari_siswa && !$form_terkunci): ?>
+
+                                    <button type="button"
+                                            class="thread-delete"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#modalHapusPesan"
+                                            data-id="<?= (int) $item["id_tanggapan"]; ?>"
+                                            aria-label="Hapus pesan ini"
+                                            title="Hapus pesan">
+                                        <i class="fa-solid fa-trash-can" aria-hidden="true"></i>
+                                    </button>
+
+                                <?php endif; ?>
+
+                            </div>
+
+                            <p>
+                                <?= nl2br(htmlspecialchars($item["isi_tanggapan"])); ?>
+                            </p>
+
+                            <small>
+                                <?= date("d-m-Y H:i", strtotime($item["created_at"])); ?>
+                            </small>
+
+                        </div>
+
+                    </div>
+
+                <?php endforeach; ?>
+
+            </div>
+
+        <?php else: ?>
+
+            <p class="empty-text">
+                Belum ada percakapan. Kamu bisa mengirim pesan setelah admin menanggapi
+                atau jika ada tambahan informasi.
+            </p>
+
+        <?php endif; ?>
+
+        <div id="thread-akhir"></div>
+
+
+        <!-- FORM BALASAN -->
+
+        <form action="kirim_balasan.php"
+              method="POST"
+              class="reply-form"
+              id="formBalasan">
+
+            <input type="hidden" name="csrf_token"
+                   value="<?= htmlspecialchars($_SESSION["csrf_token"]); ?>">
+
+            <input type="hidden" name="id_pengaduan"
+                   value="<?= $id_pengaduan; ?>">
+
+            <label for="isi_balasan">Balas Tanggapan</label>
+
+            <textarea id="isi_balasan"
+                      name="isi_balasan"
+                      rows="3"
+                      maxlength="2000"
+                      required
+                      placeholder="<?= $form_terkunci
+                          ? "Pengaduan sudah " . strtolower($pengaduan["nama_status"]) . ", balasan dikunci."
+                          : "Tulis balasan untuk admin..."; ?>"
+                      <?= $form_terkunci ? "disabled" : ""; ?>></textarea>
+
+            <?php if ($form_terkunci): ?>
+
+                <p class="reply-locked">
+                    <i class="fas fa-lock" aria-hidden="true"></i>
+                    Percakapan ditutup karena status pengaduan
+                    <strong><?= htmlspecialchars($pengaduan["nama_status"]); ?></strong>.
+                </p>
+
+            <?php endif; ?>
+
+            <button type="submit"
+                    class="reply-button"
+                    id="tombolBalas"
+                    <?= $form_terkunci ? "disabled" : ""; ?>>
+
+                <i class="fas fa-paper-plane" aria-hidden="true"></i>
+                Kirim Balasan
+
+            </button>
+
+        </form>
+
+    </section>
+
 </main>
+
+<?php if (!$form_terkunci): ?>
+
+<!-- POPUP KONFIRMASI HAPUS PESAN -->
+
+<div class="modal fade"
+     id="modalHapusPesan"
+     tabindex="-1"
+     aria-labelledby="judulHapusPesan"
+     aria-hidden="true">
+
+    <div class="modal-dialog modal-dialog-centered">
+
+        <div class="modal-content modal-hapus">
+
+            <form action="hapus_tanggapan.php" method="POST" id="formHapusPesan">
+
+                <input type="hidden" name="csrf_token"
+                       value="<?= htmlspecialchars($_SESSION["csrf_token"]); ?>">
+
+                <input type="hidden" name="id_pengaduan"
+                       value="<?= $id_pengaduan; ?>">
+
+                <input type="hidden" name="id_tanggapan"
+                       id="hapusIdTanggapan" value="">
+
+                <div class="modal-hapus-body">
+
+                    <div class="modal-hapus-icon">
+                        <i class="fa-solid fa-trash-can" aria-hidden="true"></i>
+                    </div>
+
+                    <h5 id="judulHapusPesan">Hapus Pesan</h5>
+
+                    <p>Apakah Anda yakin ingin menghapus pesan tanggapan ini?</p>
+
+                </div>
+
+                <div class="modal-hapus-footer">
+
+                    <button type="button"
+                            class="btn-batal"
+                            data-bs-dismiss="modal">
+                        Batal
+                    </button>
+
+                    <button type="submit" class="btn-hapus" id="tombolYaHapus">
+                        Ya, Hapus
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+<?php endif; ?>
 
 <?php include "bottom-nav.php"; ?>
 
 <script src="../asests/js/logout.js"></script>
+
+<script>
+    /* Cegah klik ganda pada tombol kirim */
+    /* Isi id_tanggapan ke form hapus saat ikon tempat sampah diklik */
+    document.querySelectorAll(".thread-delete").forEach(function (tombol) {
+        tombol.addEventListener("click", function () {
+            document.getElementById("hapusIdTanggapan").value = tombol.dataset.id;
+        });
+    });
+
+    var formHapus = document.getElementById("formHapusPesan");
+
+    if (formHapus) {
+        formHapus.addEventListener("submit", function () {
+            document.getElementById("tombolYaHapus").disabled = true;
+        });
+    }
+
+    var formBalasan = document.getElementById("formBalasan");
+
+    if (formBalasan) {
+        formBalasan.addEventListener("submit", function () {
+            var tombol = document.getElementById("tombolBalas");
+            if (tombol) { tombol.disabled = true; }
+        });
+    }
+</script>
 
 </body>
 </html>

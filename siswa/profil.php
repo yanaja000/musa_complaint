@@ -49,12 +49,15 @@ if (!empty($siswa["foto"]) && preg_match('#^https?://#i', $siswa["foto"])) {
     $foto_src = $siswa["foto"];
 }
 
-/* Menu pengaturan: ubah nama file tujuan di sini */
+/* Menu pengaturan: ubah nama file tujuan di sini.
+   Semua nama file huruf kecil (server Linux membedakan huruf besar/kecil).
+   Jika file tujuan belum ada di folder siswa/, menu tampil nonaktif
+   (bukan link yang berujung 404 Not Found). */
 
 $menu_pengaturan = [
-    ["Edit Profil",        "fa-user-pen",        "edit_profil.php"],
-    ["Ganti Password",     "fa-lock",            "ganti_password.php"],
-    ["Pusat Bantuan / FAQ", "fa-circle-question", "bantuan.php"],
+    ["Edit Profil",         "fa-user-pen",        "edit_profil.php"],
+    ["Ganti Password",      "fa-lock",            "ganti_password.php"],
+    ["Pusat Bantuan / FAQ", "fa-circle-question", "faq.php"],
 ];
 
 ?>
@@ -161,16 +164,35 @@ $menu_pengaturan = [
 
             <?php foreach ($menu_pengaturan as [$label, $ikon, $tujuan]): ?>
 
-                <a href="<?= $tujuan; ?>"
-                   class="list-group-item list-group-item-action">
+                <?php $tersedia = is_file(__DIR__ . "/" . $tujuan); ?>
 
-                    <i class="fa-solid <?= $ikon; ?> menu-icon" aria-hidden="true"></i>
+                <?php if ($tersedia): ?>
 
-                    <span><?= $label; ?></span>
+                    <a href="<?= htmlspecialchars($tujuan); ?>"
+                       class="list-group-item list-group-item-action">
 
-                    <i class="fa-solid fa-chevron-right menu-arrow" aria-hidden="true"></i>
+                        <i class="fa-solid <?= $ikon; ?> menu-icon" aria-hidden="true"></i>
 
-                </a>
+                        <span><?= $label; ?></span>
+
+                        <i class="fa-solid fa-chevron-right menu-arrow" aria-hidden="true"></i>
+
+                    </a>
+
+                <?php else: ?>
+
+                    <div class="list-group-item disabled text-muted"
+                         aria-disabled="true">
+
+                        <i class="fa-solid <?= $ikon; ?> menu-icon" aria-hidden="true"></i>
+
+                        <span><?= $label; ?></span>
+
+                        <span class="badge text-bg-secondary ms-auto">Segera</span>
+
+                    </div>
+
+                <?php endif; ?>
 
             <?php endforeach; ?>
 
@@ -179,8 +201,7 @@ $menu_pengaturan = [
     </div>
 
 
-    <!-- ===== TOMBOL LOGOUT ===== -->
-    <!-- href berakhiran logout.php otomatis memunculkan popup konfirmasi dari logout.js -->
+
 
     <a href="../akun/logout.php"
        class="btn btn-danger w-100 py-2 fw-semibold">

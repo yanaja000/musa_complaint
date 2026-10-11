@@ -1,0 +1,258 @@
+/* =========================================================
+   modal-profil.css  (FILE BARU: asests/css/modal-profil.css)
+   Dipanggil otomatis oleh siswa/bottom-nav.php
+
+   BAGIAN 1 - Gaya dasar modal Bootstrap 5 (versi ringkas), agar
+              modal tetap tampil benar di halaman yang TIDAK memuat
+              bootstrap.min.css penuh (dashboard, riwayat, detail, dll).
+   BAGIAN 2 - Kartu Profil Siswa
+========================================================= */
+
+/* ---------- BAGIAN 1: dasar modal ---------- */
+
+.fade { transition: opacity .15s linear; }
+.fade:not(.show) { opacity: 0; }
+
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1055;
+    display: none;
+    width: 100%;
+    height: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
+    outline: 0;
+}
+
+.modal-dialog {
+    position: relative;
+    width: auto;
+    margin: .75rem;
+    pointer-events: none;
+}
+
+.modal.fade .modal-dialog {
+    transition: transform .3s ease-out;
+    transform: translate(0, -40px);
+}
+
+.modal.show .modal-dialog { transform: none; }
+
+.modal-dialog-centered {
+    display: flex;
+    align-items: center;
+    min-height: calc(100% - 1.5rem);
+}
+
+.modal-content {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    pointer-events: auto;
+    background: #ffffff;
+    border: 0;
+    outline: 0;
+}
+
+.modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1050;
+    width: 100vw;
+    height: 100vh;
+    background: #0f172a;
+}
+
+.modal-backdrop.fade { opacity: 0; }
+.modal-backdrop.show { opacity: .55; }
+
+body.modal-open { overflow: hidden; }
+
+@media (min-width: 576px) {
+
+    .modal-dialog {
+        max-width: 400px;
+        margin: 1.75rem auto;
+    }
+
+    .modal-dialog-centered { min-height: calc(100% - 3.5rem); }
+}
+
+/* Avatar header kini <button>: reset gaya bawaan tombol */
+
+button.top-avatar {
+    padding: 0;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+/* ---------- BAGIAN 2: Kartu Profil Siswa ---------- */
+
+.kp-card {
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: 0 24px 60px rgba(30, 41, 59, .35);
+    font-family: "Poppins", sans-serif;
+}
+
+/* Header gradasi diagonal biru primary -> ungu -> cyan lembut */
+
+.kp-header {
+    position: relative;
+    height: 128px;
+    padding: 14px 16px;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+
+    background:
+        radial-gradient(circle at 85% 20%, rgba(103, 232, 249, .55), transparent 55%),
+        radial-gradient(circle at 10% 100%, rgba(196, 181, 253, .45), transparent 50%),
+        linear-gradient(135deg, #1d4ed8 0%, #2563eb 38%, #7c3aed 100%);
+}
+
+.kp-logout,
+.kp-close {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+
+    height: 34px;
+    border: 0;
+    border-radius: 999px;
+
+    background: rgba(255, 255, 255, .2);
+    color: #ffffff;
+
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    cursor: pointer;
+    transition: background .2s ease;
+}
+
+.kp-logout { padding: 0 14px; }
+
+.kp-close {
+    width: 34px;
+    justify-content: center;
+    padding: 0;
+    font-size: 15px;
+}
+
+.kp-logout:hover,
+.kp-close:hover {
+    background: rgba(255, 255, 255, .34);
+    color: #ffffff;
+}
+
+/* Isi kartu */
+
+.kp-body {
+    position: relative;
+    padding: 0 22px 18px;
+    text-align: center;
+}
+
+/* Foto bulat tepat di batas gradasi */
+
+.kp-foto {
+    width: 104px;
+    height: 104px;
+    margin: -52px auto 12px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+    overflow: hidden;
+
+    background: #dbeafe;
+    color: #2563eb;
+    font-size: 40px;
+
+    border: 5px solid #ffffff;
+    box-shadow: 0 10px 24px rgba(37, 99, 235, .35);
+}
+
+.kp-foto img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.kp-nama {
+    margin: 0 0 2px;
+    color: #172033;
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: .4px;
+    line-height: 1.35;
+    word-break: break-word;
+}
+
+.kp-nis {
+    margin: 0 0 18px;
+    color: #6d28d9;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+/* Grid informasi 2 kolom */
+
+.kp-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.kp-info {
+    padding: 12px 10px;
+    border: 1px solid #e0e7ff;
+    border-radius: 16px;
+    background: linear-gradient(160deg, #f5f8ff 0%, #f5f0ff 100%);
+}
+
+.kp-info-label {
+    display: block;
+    margin-bottom: 4px;
+    color: #64748b;
+    font-size: 11px;
+    font-weight: 500;
+}
+
+.kp-info-label i {
+    margin-right: 4px;
+    color: #2563eb;
+}
+
+.kp-info strong {
+    display: block;
+    color: #172033;
+    font-size: 14px;
+    font-weight: 700;
+    word-break: break-word;
+}
+
+/* Footer */
+
+.kp-footer {
+    padding: 12px 16px;
+    background: #f8fafc;
+    border-top: 1px solid #eef2f7;
+    color: #64748b;
+    font-size: 12px;
+    text-align: center;
+}
+
+.kp-footer i { margin-right: 4px; color: #7c3aed; }

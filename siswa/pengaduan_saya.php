@@ -165,6 +165,7 @@ if (!function_exists("kelasBadgeStatus")) {
                 return "bg-warning text-dark";     // kuning
 
             case "diproses":
+        case "ditanggapi":
                 return "bg-info text-white";       // cyan
 
             case "selesai":
@@ -199,6 +200,7 @@ $stmt = $conn->prepare("
                 SELECT 1
                 FROM tanggapan t
                 WHERE t.id_pengaduan = p.id_pengaduan
+                AND COALESCE(t.pengirim, 'admin') <> 'siswa'
                 AND t.created_at > COALESCE(p.dilihat_siswa_at, p.created_at)
             )
         ) AS belum_dibaca

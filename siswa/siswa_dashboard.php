@@ -10,80 +10,33 @@ $nama = $_SESSION["nama"];
 
 /* =========================================
    STATISTIK PENGADUAN SISWA
+   Satu query; status dihitung lewat NAMA status
+   sehingga tidak tergantung nomor id_status.
 ========================================= */
 
 $stmt = $conn->prepare("
-    SELECT COUNT(*) AS total
-    FROM pengaduan
-    WHERE id_siswa = ?
-");
-
-$stmt->bind_param("i", $id_siswa);
-$stmt->execute();
-
-$total = $stmt->get_result()->fetch_assoc()["total"];
-
-
-/* Pengaduan menunggu */
-
-$stmt = $conn->prepare("
-    SELECT COUNT(*) AS jumlah
-    FROM pengaduan
-    WHERE id_siswa = ?
-    AND id_status = 1
-");
-
-$stmt->bind_param("i", $id_siswa);
-$stmt->execute();
-
-$menunggu = $stmt->get_result()->fetch_assoc()["jumlah"];
-
-
-/* Pengaduan diproses */
-
-$stmt = $conn->prepare("
-    SELECT COUNT(*) AS jumlah
-    FROM pengaduan
-    WHERE id_siswa = ?
-    AND id_status = 2
-");
-
-$stmt->bind_param("i", $id_siswa);
-$stmt->execute();
-
-$diproses = $stmt->get_result()->fetch_assoc()["jumlah"];
-
-
-/* Pengaduan selesai */
-
-$stmt = $conn->prepare("
-    SELECT COUNT(*) AS jumlah
-    FROM pengaduan
-    WHERE id_siswa = ?
-    AND id_status = 4
-");
-
-$stmt->bind_param("i", $id_siswa);
-$stmt->execute();
-
-$selesai = $stmt->get_result()->fetch_assoc()["jumlah"];
-
-
-/* Pengaduan ditolak (dicari lewat nama status, jadi tidak tergantung nomor id) */
-
-$stmt = $conn->prepare("
-    SELECT COUNT(*) AS jumlah
+    SELECT
+        COUNT(*) AS total,
+        COALESCE(SUM(s.nama_status = 'Menunggu'), 0) AS menunggu,
+        COALESCE(SUM(s.nama_status IN ('Diproses','Ditanggapi')), 0) AS diproses,
+        COALESCE(SUM(s.nama_status = 'Selesai'),  0) AS selesai,
+        COALESCE(SUM(s.nama_status = 'Ditolak'),  0) AS ditolak
     FROM pengaduan p
     JOIN status_pengaduan s
         ON p.id_status = s.id_status
     WHERE p.id_siswa = ?
-    AND s.nama_status = 'Ditolak'
 ");
 
 $stmt->bind_param("i", $id_siswa);
 $stmt->execute();
 
-$ditolak = $stmt->get_result()->fetch_assoc()["jumlah"];
+$stat = $stmt->get_result()->fetch_assoc();
+
+$total    = (int) $stat["total"];
+$menunggu = (int) $stat["menunggu"];
+$diproses = (int) $stat["diproses"];
+$selesai  = (int) $stat["selesai"];
+$ditolak  = (int) $stat["ditolak"];
 
 
 /* =========================================
@@ -98,6 +51,7 @@ function kelasBadgeStatus($nama_status)
             return "bg-warning text-dark";     // kuning
 
         case "diproses":
+        case "ditanggapi":
             return "bg-info text-white";       // cyan
 
         case "selesai":
@@ -123,7 +77,19 @@ $stmt = $conn->prepare("
         p.lokasi,
         p.created_at,
         k.nama_kategori,
-        s.nama_status
+        s.nama_status,
+
+        /* 1 = admin memperbarui/menanggapi dan siswa belum membukanya */
+        (
+            p.updated_at > COALESCE(p.dilihat_siswa_at, p.created_at)
+            OR EXISTS (
+                SELECT 1
+                FROM tanggapan t
+                WHERE t.id_pengaduan = p.id_pengaduan
+                AND COALESCE(t.pengirim, 'admin') <> 'siswa'
+                AND t.created_at > COALESCE(p.dilihat_siswa_at, p.created_at)
+            )
+        ) AS belum_dibaca
     FROM pengaduan p
     JOIN kategori k
         ON p.id_kategori = k.id_kategori
@@ -159,6 +125,9 @@ $pengaduan = $stmt->get_result();
     <link rel="stylesheet"
           href="../asests/css/siswa.css">
 
+    <link rel="stylesheet"
+          href="../asests/css/tanggapan.css">
+
 </head>
 
 <body>
@@ -176,7 +145,7 @@ $pengaduan = $stmt->get_result();
         <div>
 
             <p class="dashboard-label">
-                Dashboad Siswa
+                Dashboard Siswa
             </p>
 
             <h1>
@@ -351,7 +320,10 @@ $pengaduan = $stmt->get_result();
                         <div class="complaint-info">
 
                             <h3>
-                                <?= htmlspecialchars($row["judul"]); ?>
+                                <a href="detail_pengaduan.php?id=<?= (int) $row["id_pengaduan"]; ?>"
+                                   class="complaint-link">
+                                    <?= htmlspecialchars($row["judul"]); ?>
+                                </a>
                             </h3>
 
                             <p>
@@ -373,6 +345,12 @@ $pengaduan = $stmt->get_result();
 
                             <span class="<?= kelasBadgeStatus($row["nama_status"]); ?>">
                                 <?= htmlspecialchars($row["nama_status"]); ?>
+
+                                <?php if (!empty($row["belum_dibaca"])): ?>
+                                    <i class="unread-dot" role="img"
+                                       aria-label="Ada pembaruan baru"
+                                       title="Ada pembaruan baru"></i>
+                                <?php endif; ?>
                             </span>
 
                         </div>

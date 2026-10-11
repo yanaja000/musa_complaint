@@ -170,7 +170,7 @@ $nilai_input = ($error !== "" && isset($foto_input)) ? $foto_input : $foto_db;
             <div class="mb-3">
 
                 <label for="foto" class="form-label fw-medium small">
-                    Link Foto Profil
+                    Link Foto Profil (http/https)
                 </label>
 
                 <input type="url"
@@ -182,7 +182,7 @@ $nilai_input = ($error !== "" && isset($foto_input)) ? $foto_input : $foto_db;
                        value="<?= htmlspecialchars($nilai_input); ?>">
 
                 <div class="form-text">
-                    Tempel link gambar (http/https). Kosongkan untuk menghapus foto.
+                    Kosongkan untuk menghapus foto.
                 </div>
 
             </div>
