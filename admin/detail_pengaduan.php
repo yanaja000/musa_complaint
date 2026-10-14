@@ -223,21 +223,30 @@ if (
     && isset($_POST["kirim_tanggapan"])
 ) {
 
-    $isi_tanggapan =
-        trim($_POST["isi_tanggapan"] ?? "");
+    if (
+        !isset($_POST["csrf_token"])
+        || !is_string($_POST["csrf_token"])
+        || !hash_equals($_SESSION["csrf_token"], $_POST["csrf_token"])
+    ) {
+        http_response_code(403);
+        exit("Permintaan tidak valid.");
+    }
 
-    if ($isi_tanggapan !== "") {
+    $isi_tanggapan = trim($_POST["isi_tanggapan"] ?? "");
+
+    if ($isi_tanggapan !== "" && mb_strlen($isi_tanggapan, "UTF-8") <= 2000) {
 
         $stmt_tanggapan = $conn->prepare("
             INSERT INTO tanggapan
             (
                 id_pengaduan,
                 id_admin,
+                id_siswa,
                 isi_tanggapan,
                 pengirim,
                 created_at
             )
-            VALUES (?, ?, ?, 'admin', NOW())
+            VALUES (?, ?, NULL, ?, 'admin', NOW())
         ");
 
         $stmt_tanggapan->bind_param(
@@ -250,9 +259,11 @@ if (
         $stmt_tanggapan->execute();
     }
 
+    /* Post-Redirect-Get: refresh tidak mengirim ulang tanggapan */
+
     header(
         "Location: detail_pengaduan.php?id=" .
-        $id_pengaduan
+        $id_pengaduan . "#chat-akhir"
     );
 
     exit;
@@ -387,6 +398,8 @@ $riwayat = $stmt_riwayat->get_result();
 
 $stmt_tanggapan = $conn->prepare("
     SELECT
+        t.id_tanggapan,
+        t.id_admin,
         t.isi_tanggapan,
         t.created_at,
         t.pengirim,
@@ -411,7 +424,7 @@ $stmt_tanggapan->bind_param(
 
 $stmt_tanggapan->execute();
 
-$tanggapan = $stmt_tanggapan->get_result();
+$tanggapan = $stmt_tanggapan->get_result()->fetch_all(MYSQLI_ASSOC);
 
 ?>
 
@@ -436,6 +449,11 @@ $tanggapan = $stmt_tanggapan->get_result();
         href="../asests/css/admin_detail_pengaduan.css"
     >
 
+    <link
+        rel="stylesheet"
+        href="../asests/css/admin_chat.css"
+    >
+
 </head>
 
 <body>
@@ -445,39 +463,7 @@ $tanggapan = $stmt_tanggapan->get_result();
      NAVBAR
 ========================= -->
 
-<nav class="navbar">
-
-    <a
-        href="admin_dashboard.php"
-        class="logo"
-    >
-        <span>MUSA</span> Complaint
-    </a>
-
-    <div class="nav-menu">
-
-        <a href="admin_dashboard.php">
-            Dashboard
-        </a>
-
-        <a
-            href="pengaduan.php"
-            class="active"
-        >
-            Pengaduan
-        </a>
-
-        <a href="#">
-            Siswa
-        </a>
-
-        <a href="../akun/logout.php">
-            Logout
-        </a>
-
-    </div>
-
-</nav>
+<?php $halaman_aktif = "pengaduan"; include __DIR__ . "/navbar.php"; ?>
 
 
 <!-- =========================
@@ -867,52 +853,6 @@ $tanggapan = $stmt_tanggapan->get_result();
 
 
     <!-- =========================
-         TANGGAPAN ADMIN
-    ========================= -->
-
-    <section class="card">
-
-        <div class="card-title">
-
-            <h2>
-                Berikan Tanggapan
-            </h2>
-
-        </div>
-
-
-        <form method="POST">
-
-            <div class="form-group">
-
-                <label>
-                    Tanggapan
-                </label>
-
-                <textarea
-                    name="isi_tanggapan"
-                    rows="5"
-                    placeholder="Tulis tanggapan untuk siswa..."
-                    required
-                ></textarea>
-
-            </div>
-
-
-            <button
-                type="submit"
-                name="kirim_tanggapan"
-                class="primary-button"
-            >
-                Kirim Tanggapan
-            </button>
-
-        </form>
-
-    </section>
-
-
-    <!-- =========================
          RIWAYAT STATUS
     ========================= -->
 
@@ -995,7 +935,7 @@ $tanggapan = $stmt_tanggapan->get_result();
 
 
     <!-- =========================
-         TANGGAPAN SEBELUMNYA
+         PERCAKAPAN DENGAN SISWA (chat dua arah)
     ========================= -->
 
     <section class="card">
@@ -1003,72 +943,120 @@ $tanggapan = $stmt_tanggapan->get_result();
         <div class="card-title">
 
             <h2>
+                <i class="fa-solid fa-comments" aria-hidden="true"></i>
                 Percakapan dengan Siswa
             </h2>
 
         </div>
 
 
-        <?php if ($tanggapan->num_rows > 0): ?>
+        <?php if (count($tanggapan) > 0): ?>
 
-            <div class="response-list">
+            <div class="chat" id="chat-box">
 
-                <?php while (
-                    $item = $tanggapan->fetch_assoc()
-                ): ?>
+                <?php foreach ($tanggapan as $item): ?>
 
-                    <div class="response-item" <?= ($item["pengirim"] ?? "admin") === "siswa" ? 'style="background:#eff6ff;border-color:#bfdbfe"' : ""; ?>>
+                    <?php
+                    $dari_siswa = ($item["pengirim"] ?? "admin") === "siswa";
+                    $milik_saya = !$dari_siswa && (int) $item["id_admin"] === $id_admin;
 
-                        <div class="response-header">
+                    if ($dari_siswa) {
+                        $nama_pengirim = $pengaduan["nama_siswa"];
+                    } elseif ($milik_saya) {
+                        $nama_pengirim = ($item["nama_admin"] ?? "Admin") . " (Kamu)";
+                    } else {
+                        $nama_pengirim = $item["nama_admin"] ?? "Admin";
+                    }
 
-                            <strong>
-                                <?php if (($item["pengirim"] ?? "admin") === "siswa"): ?>
-                                    <?= htmlspecialchars($pengaduan["nama_siswa"]); ?> (Siswa)
-                                <?php else: ?>
-                                    <?= htmlspecialchars($item["nama_admin"] ?? "Admin"); ?> (Admin)
-                                <?php endif; ?>
-                            </strong>
+                    $dihapus = !empty($item["dihapus_siswa_at"]);
+                    ?>
 
-                            <span>
-                                <?= date(
-                                    "d/m/Y H:i",
-                                    strtotime(
-                                        $item["created_at"]
-                                    )
-                                ); ?>
-                            </span>
+                    <div class="chat-row <?= $dari_siswa ? "chat-siswa" : "chat-admin"; ?><?= $dihapus ? " chat-dihapus" : ""; ?>">
+
+                        <div class="chat-bubble">
+
+                            <div class="chat-meta">
+
+                                <strong>
+                                    <i class="fas <?= $dari_siswa ? "fa-user" : "fa-user-shield"; ?>"
+                                       aria-hidden="true"></i>
+                                    <?= htmlspecialchars($nama_pengirim); ?>
+                                </strong>
+
+                                <span class="chat-role">
+                                    <?= $dari_siswa ? "Siswa" : "Admin"; ?>
+                                </span>
+
+                            </div>
+
+                            <p>
+                                <?= nl2br(htmlspecialchars($item["isi_tanggapan"])); ?>
+                            </p>
+
+                            <small>
+                                <?= date("d-m-Y H:i", strtotime($item["created_at"])); ?>
+                            </small>
+
+                            <?php if ($dihapus): ?>
+                                <small class="chat-hapus-note">
+                                    <i class="fa-solid fa-trash-can" aria-hidden="true"></i>
+                                    Dihapus oleh siswa pada
+                                    <?= date("d-m-Y H:i", strtotime($item["dihapus_siswa_at"])); ?>
+                                    (tidak terlihat lagi oleh siswa)
+                                </small>
+                            <?php endif; ?>
 
                         </div>
 
-                        <p>
-                            <?= nl2br(
-                                htmlspecialchars(
-                                    $item["isi_tanggapan"]
-                                )
-                            ); ?>
-                        </p>
-
-                        <?php if (!empty($item["dihapus_siswa_at"])): ?>
-                            <small style="color:#b91c1c;font-size:11px;">
-                                Dihapus oleh siswa pada
-                                <?= date("d/m/Y H:i", strtotime($item["dihapus_siswa_at"])); ?>
-                                (tidak terlihat lagi oleh siswa)
-                            </small>
-                        <?php endif; ?>
-
                     </div>
 
-                <?php endwhile; ?>
+                <?php endforeach; ?>
 
             </div>
 
         <?php else: ?>
 
             <p class="empty">
-                Belum ada tanggapan dari admin.
+                Belum ada percakapan. Kirim tanggapan pertama untuk siswa.
             </p>
 
         <?php endif; ?>
+
+        <div id="chat-akhir"></div>
+
+
+        <!-- FORM TANGGAPAN -->
+
+        <form method="POST" class="chat-form" id="formTanggapan">
+
+            <input
+                type="hidden"
+                name="csrf_token"
+                value="<?= htmlspecialchars($_SESSION["csrf_token"]); ?>"
+            >
+
+            <label for="isi_tanggapan">Tulis Tanggapan</label>
+
+            <textarea
+                id="isi_tanggapan"
+                name="isi_tanggapan"
+                rows="3"
+                maxlength="2000"
+                placeholder="Tulis tanggapan untuk siswa..."
+                required
+            ></textarea>
+
+            <button
+                type="submit"
+                name="kirim_tanggapan"
+                class="chat-send"
+                id="tombolKirim"
+            >
+                <i class="fa-solid fa-paper-plane" aria-hidden="true"></i>
+                Kirim Tanggapan
+            </button>
+
+        </form>
 
     </section>
 
@@ -1076,6 +1064,22 @@ $tanggapan = $stmt_tanggapan->get_result();
 
 <script src="../asests/js/logout.js"></script>
 <script src="../asests/js/hapus_pengaduan.js"></script>
+
+<script>
+    /* Chat langsung menampilkan pesan terbaru */
+    var chatBox = document.getElementById("chat-box");
+
+    if (chatBox) { chatBox.scrollTop = chatBox.scrollHeight; }
+
+    /* Cegah klik ganda pada tombol kirim */
+    var formTanggapan = document.getElementById("formTanggapan");
+
+    if (formTanggapan) {
+        formTanggapan.addEventListener("submit", function () {
+            document.getElementById("tombolKirim").disabled = true;
+        });
+    }
+</script>
 
 </body>
 

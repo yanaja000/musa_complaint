@@ -67,33 +67,7 @@ $query = $conn->query("
      NAVBAR
 ========================= -->
 
-<nav class="navbar">
-
-    <a href="admin_dashboard.php" class="logo">
-        <span>MUSA</span> Complaint
-    </a>
-
-    <div class="nav-menu">
-
-        <a href="admin_dashboard.php">
-            Dashboard
-        </a>
-
-        <a href="pengaduan.php" class="active">
-            Pengaduan
-        </a>
-
-        <a href="siswa.php">
-            Siswa
-        </a>
-
-        <a href="../akun/logout.php">
-            Logout
-        </a>
-
-    </div>
-
-</nav>
+<?php $halaman_aktif = "pengaduan"; include __DIR__ . "/navbar.php"; ?>
 
 
 <!-- =========================

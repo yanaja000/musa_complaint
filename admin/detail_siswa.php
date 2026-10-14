@@ -115,33 +115,7 @@ $pengaduan = $stmt->get_result();
 
 <body>
 
-<nav class="navbar">
-
-    <a href="admin_dashboard.php" class="logo">
-        <span>MUSA</span> Complaint
-    </a>
-
-    <div class="nav-menu">
-
-        <a href="admin_dashboard.php">
-            Dashboard
-        </a>
-
-        <a href="pengaduan.php">
-            Pengaduan
-        </a>
-
-        <a href="siswa.php" class="active">
-            Siswa
-        </a>
-
-        <a href="../akun/logout.php">
-            Logout
-        </a>
-
-    </div>
-
-</nav>
+<?php $halaman_aktif = "siswa"; include __DIR__ . "/navbar.php"; ?>
 
 
 <main class="container">

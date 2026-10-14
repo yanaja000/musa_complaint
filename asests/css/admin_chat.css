@@ -1,0 +1,155 @@
+/* =========================================================
+   admin_chat.css  (FILE BARU: asests/css/admin_chat.css)
+   Thread percakapan Admin <-> Siswa di admin/detail_pengaduan.php
+   Tampilannya sama dengan sisi siswa; posisinya dibalik:
+   pesan ADMIN di kanan (biru), pesan SISWA di kiri (terang).
+========================================================= */
+
+.card-title h2 i { margin-right: 6px; color: #2563eb; }
+
+.chat {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+
+    max-height: 520px;
+    overflow-y: auto;
+    padding: 4px 4px 8px;
+    scroll-behavior: smooth;
+}
+
+.chat-row { display: flex; }
+
+.chat-siswa { justify-content: flex-start; }
+.chat-admin { justify-content: flex-end; }
+
+.chat-bubble {
+    max-width: 82%;
+    padding: 12px 14px;
+    border-radius: 14px;
+
+    font-size: 13px;
+    line-height: 1.7;
+    word-wrap: break-word;
+    overflow-wrap: anywhere;
+}
+
+.chat-siswa .chat-bubble {
+    background: #f1f6ff;
+    border: 1px solid #dbe8fb;
+    border-top-left-radius: 4px;
+    color: #31415a;
+}
+
+.chat-admin .chat-bubble {
+    background: #1261d6;
+    border: 1px solid #1261d6;
+    border-top-right-radius: 4px;
+    color: #ffffff;
+}
+
+.chat-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 4px;
+    font-size: 12px;
+}
+
+.chat-siswa .chat-meta strong { color: #1261d6; }
+.chat-admin .chat-meta strong { color: #ffffff; }
+
+.chat-meta strong i { margin-right: 4px; }
+
+.chat-role {
+    padding: 1px 8px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 600;
+}
+
+.chat-siswa .chat-role { background: #dbeafe; color: #1d4ed8; }
+.chat-admin .chat-role { background: rgba(255, 255, 255, .22); color: #ffffff; }
+
+.chat-bubble p { margin: 0 0 6px; }
+
+.chat-bubble small { font-size: 11px; opacity: .75; }
+
+/* pesan yang sudah dihapus siswa: tetap terlihat untuk admin */
+
+.chat-dihapus .chat-bubble {
+    background: #fff7f7;
+    border: 1px dashed #f1a5ad;
+    color: #6b7280;
+}
+
+.chat-hapus-note {
+    display: block;
+    margin-top: 4px;
+    color: #b91c1c;
+    font-size: 11px;
+    opacity: 1;
+}
+
+/* Form balasan */
+
+.chat-form {
+    margin-top: 18px;
+    padding-top: 16px;
+    border-top: 1px dashed #d6e2f5;
+}
+
+.chat-form label {
+    display: block;
+    margin-bottom: 8px;
+    color: #172033;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.chat-form textarea {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid #cfe0f8;
+    border-radius: 12px;
+
+    background: #ffffff;
+    font-family: inherit;
+    font-size: 13px;
+    line-height: 1.6;
+    resize: vertical;
+    outline: none;
+}
+
+.chat-form textarea:focus {
+    border-color: #1261d6;
+    box-shadow: 0 0 0 3px rgba(18, 97, 214, .15);
+}
+
+.chat-send {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+
+    margin-top: 12px;
+    padding: 10px 18px;
+    border: 0;
+    border-radius: 10px;
+
+    background: #1261d6;
+    color: #ffffff;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .2s ease;
+}
+
+.chat-send:hover:not(:disabled) { background: #0f4fb0; }
+.chat-send:disabled { background: #a9b8d0; cursor: not-allowed; }
+
+@media (max-width: 600px) {
+
+    .chat-bubble { max-width: 94%; }
+    .chat-send { width: 100%; justify-content: center; }
+}
