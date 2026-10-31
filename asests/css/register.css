@@ -145,6 +145,14 @@ body {
     margin-bottom: 25px;
 }
 
+.logo img {
+    display: block;
+    width: 88px;
+    height: 88px;
+    margin: 0 auto 12px;
+    object-fit: contain;
+}
+
 .logo h1 {
     color: #2563eb;
     margin-bottom: 6px;

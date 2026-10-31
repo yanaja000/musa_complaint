@@ -96,9 +96,9 @@ try {
 
     <a href="admin_dashboard.php" class="adm-logo">
 
-        <span class="adm-logo-icon">
-            <i class="fa-solid fa-bullhorn" aria-hidden="true"></i>
-        </span>
+        <img src="../asests/foto/logo.png"
+             alt="Logo MUSA Complaint"
+             class="adm-logo-icon">
 
         <span class="adm-logo-text"><b>MUSA</b>Complaint</span>
 

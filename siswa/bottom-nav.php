@@ -15,17 +15,7 @@ if (!isset($nav_aktif)) {
     $nav_aktif = $peta_halaman[$file_sekarang] ?? "";
 }
 
-/* Cari file logo */
-
-$logo_src = "";
-
-foreach (["png", "jpg", "jpeg", "webp", "svg"] as $ext) {
-
-    if (file_exists(__DIR__ . "/../asests/img/logo." . $ext)) {
-        $logo_src = "../asests/img/logo." . $ext;
-        break;
-    }
-}
+$logo_src = "../asests/foto/logo.png";
 
 /* Foto profil siswa (URL dari kolom foto). Kosong/gagal -> ikon placeholder */
 
@@ -158,19 +148,9 @@ $menu_nav = [
 
     <a href="siswa_dashboard.php" class="top-brand-link">
 
-        <?php if ($logo_src !== ""): ?>
-
-            <img src="<?= $logo_src; ?>"
-                 alt="Logo MUSA Complaint"
-                 class="top-brand-logo">
-
-        <?php else: ?>
-
-            <span class="top-brand-logo top-brand-fallback">
-                <i class="fa-solid fa-bullhorn" aria-hidden="true"></i>
-            </span>
-
-        <?php endif; ?>
+        <img src="<?= htmlspecialchars($logo_src, ENT_QUOTES, 'UTF-8'); ?>"
+             alt="Logo MUSA Complaint"
+             class="top-brand-logo">
 
         <span class="top-brand-text">
             MUSA<span>Complaint</span>

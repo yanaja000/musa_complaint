@@ -52,17 +52,6 @@ body {
     border-radius: 8px;
 }
 
-.top-brand-fallback {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    background: #2563eb;
-    color: #ffffff;
-
-    font-size: 17px;
-}
-
 .top-brand-text {
     color: #2563eb;
     font-family: "Poppins", sans-serif;

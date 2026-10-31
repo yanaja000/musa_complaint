@@ -1,3 +1,4 @@
+
 <?php
 
 require_once "../config/database.php";
@@ -93,109 +94,193 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 <html lang="id">
 
 <head>
-
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Login - MUSA Complaint</title>
+    <title>Login - MUSAcomplaints</title>
 
     <link rel="stylesheet" href="../asests/css/login.css">
-
 </head>
 
 <body>
 
-    <div class="auth-container">
+    <main class="auth-container">
 
-        <div class="auth-card">
 
-            <div class="auth-header">
 
-                <h1>MUSA Complaint</h1>
+        <aside class="auth-side">
+
+            <div class="side-content">
+
+                <div class="side-decoration">
+                    <img src="../asests/foto/logo.png" alt="Logo MUSA Complaint">
+                </div>
+
+                <span class="side-label">SUARA UNTUK PERUBAHAN</span>
+
+                <h2>
+                    Sekolah Lebih Baik,
+                    Dimulai dari
+                    <span>Suaramu.</span>
+                </h2>
 
                 <p>
-                    Masuk untuk melanjutkan
+                    Sampaikan aspirasi dan pengaduanmu dengan mudah.
+                    Bersama kita wujudkan lingkungan sekolah
+                    yang lebih aman dan nyaman.
                 </p>
 
-            </div>
+                <div class="side-features">
 
-            <?php if ($error): ?>
+                    <div class="feature-item">
+                        <span class="feature-check">✓</span>
+                        <span>Pengaduan mudah dan praktis</span>
+                    </div>
 
-                <div class="error-message">
-                    <?= htmlspecialchars($error); ?>
-                </div>
+                    <div class="feature-item">
+                        <span class="feature-check">✓</span>
+                        <span>Pantau perkembangan pengaduan</span>
+                    </div>
 
-            <?php endif; ?>
-
-            <form method="POST">
-
-                <div class="form-group">
-
-                    <label>
-                        Username / Email
-                    </label>
-
-                    <input
-                        type="text"
-                        name="login"
-                        placeholder="Masukkan username atau email"
-                        required
-                    >
-
-                </div>
-
-                <div class="form-group password-group">
-
-                    <label for="password">Password</label>
-
-                    <div class="password-wrapper">
-
-                        <input
-                            type="password"
-                            name="password"
-                            id="password"
-                            placeholder="Masukkan password"
-                            required
-                        >
-
-                        <button
-                            type="button"
-                            class="toggle-password"
-                            id="togglePassword"
-                            aria-label="Tampilkan password"
-                        >
-                            <span class="eye-icon"></span>
-                        </button>
-
+                    <div class="feature-item">
+                        <span class="feature-check">✓</span>
+                        <span>Riwayat pengaduan terorganisir</span>
                     </div>
 
                 </div>
 
-            
+            </div>
 
-                <button type="submit">
-                    Login
-                </button>
+            <div class="side-footer">
+                MUSAcomplaints · Suara untuk perubahan
+            </div>
 
-            </form>
+        </aside>
 
-            <div class="auth-footer">
+                <section class="auth-card">
 
-                <p>
-                    Belum punya akun?
-                    <a href="register.php">
-                        Daftar sekarang
-                    </a>
-                </p>
+            <div class="auth-brand">
+
+                <img src="../asests/foto/logo.png" alt="Logo MUSA Complaint" class="brand-icon">
+
+                <div>
+                    <h1>MUSA<span>complaints</span></h1>
+                    <p>Sistem Pengaduan Sekolah</p>
+                </div>
 
             </div>
 
-        </div>
+            <div class="auth-content">
 
-    </div>
+                <div class="auth-heading">
+                    <span class="welcome-label">SELAMAT DATANG</span>
+
+                    <h2>Masuk ke Akun</h2>
+
+                    <p>
+                        Silakan masuk untuk menyampaikan dan
+                        memantau pengaduan lingkungan sekolah.
+                    </p>
+                </div>
+
+                <?php if ($error): ?>
+                    <div class="error-message" role="alert">
+                        <span>!</span>
+                        <?= htmlspecialchars($error); ?>
+                    </div>
+                <?php endif; ?>
+
+                <form method="POST">
+
+                    <div class="form-group">
+
+                        <label for="login">Username atau Email</label>
+
+                        <div class="input-wrapper">
+                            <span class="input-icon">✉</span>
+
+                            <input
+                                type="text"
+                                id="login"
+                                name="login"
+                                placeholder="Masukkan username atau email"
+                                value="<?= htmlspecialchars($_POST["login"] ?? ""); ?>"
+                                autocomplete="username"
+                                required
+                            >
+                        </div>
+
+                    </div>
+
+                    <div class="form-group">
+
+                        <label for="password">Password</label>
+
+                        <div class="input-wrapper password-wrapper">
+
+                            <span class="input-icon">◆</span>
+
+                            <input
+                                type="password"
+                                name="password"
+                                id="password"
+                                placeholder="Masukkan password"
+                                autocomplete="current-password"
+                                required
+                            >
+
+                            <button
+                                type="button"
+                                class="toggle-password"
+                                id="togglePassword"
+                                aria-label="Tampilkan password"
+                            >
+                                <svg
+                                    class="eye-icon"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="1.8"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                >
+                                    <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7Z"/>
+                                    <circle cx="12" cy="12" r="3"/>
+                                    <path class="eye-slash" d="M4 4l16 16"/>
+                                </svg>
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                    <button type="submit" class="login-button">
+                        <span>Masuk Sekarang</span>
+                        <span class="button-arrow">→</span>
+                    </button>
+
+                </form>
+
+                <div class="auth-footer">
+                    <p>
+                        Belum memiliki akun?
+                        <a href="register.php">Daftar sekarang</a>
+                    </p>
+                </div>
+
+            </div>
+
+            <div class="auth-bottom">
+                <span>© <?= date("Y"); ?> MUSAcomplaints</span>
+                <span>Sistem Pengaduan Sekolah</span>
+            </div>
+
+        </section>
+
+    </main>
 
     <script src="../asests/js/login.js"></script>
 
 </body>
-
 </html>

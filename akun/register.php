@@ -212,6 +212,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <div class="card">
 
         <div class="logo">
+            <img src="../asests/foto/logo.png" alt="Logo MUSA Complaint">
             <h1>MUSA Complaint</h1>
             <p>Sistem Pengaduan Sekolah</p>
         </div>

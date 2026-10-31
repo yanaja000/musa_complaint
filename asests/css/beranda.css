@@ -200,7 +200,7 @@ a:focus-visible, button:focus-visible {
     box-shadow: 0 8px 16px -8px rgba(37, 99, 235, .8);
 }
 
-.nav-logo-icon img { width: 100%; height: 100%; object-fit: contain; background: var(--putih); }
+.nav-logo-icon img { width: 100%; height: 100%; object-fit: contain; }
 
 .nav-logo-text { font-size: 18px; font-weight: 700; letter-spacing: -.3px; color: var(--biru); }
 .nav-logo-text span { color: var(--biru-tua); }
@@ -305,9 +305,14 @@ a:focus-visible, button:focus-visible {
     position: relative;
     z-index: 1;
     display: grid;
-    grid-template-columns: 1fr 1.05fr;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
     align-items: center;
     gap: 64px;
+}
+
+.hero-text,
+.hero-visual {
+    min-width: 0;
 }
 
 .hero-chip {
@@ -325,16 +330,10 @@ a:focus-visible, button:focus-visible {
     color: var(--biru-tua);
 }
 
-.hero-chip i {
+.hero-chip img {
     width: 26px;
     height: 26px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    background: var(--grad);
-    color: var(--putih);
-    font-size: 11px;
+    object-fit: contain;
 }
 
 .hero h1 {
@@ -395,7 +394,11 @@ a:focus-visible, button:focus-visible {
 
 /* ---------- Mockup dashboard ---------- */
 
-.hero-visual { position: relative; }
+.hero-visual {
+    position: relative;
+    width: 100%;
+    max-width: 100%;
+}
 
 .hero-visual::before {
     content: "";
@@ -410,6 +413,9 @@ a:focus-visible, button:focus-visible {
 .mock {
     position: relative;
     z-index: 1;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
     background: var(--putih);
     border: 1px solid var(--biru-muda-2);
     border-radius: 18px;
@@ -427,7 +433,7 @@ a:focus-visible, button:focus-visible {
 
 .mock-top i { width: 9px; height: 9px; border-radius: 50%; background: rgba(255, 255, 255, .55); }
 
-.mock-body { display: grid; grid-template-columns: 56px 1fr; }
+.mock-body { display: grid; grid-template-columns: 56px minmax(0, 1fr); min-width: 0; }
 
 .mock-side {
     display: flex;
@@ -452,7 +458,7 @@ a:focus-visible, button:focus-visible {
 
 .mock-side .on { background: var(--grad); color: var(--putih); }
 
-.mock-main { padding: 22px; }
+.mock-main { min-width: 0; padding: 22px; }
 .mock-head { margin-bottom: 14px; }
 .mock-head h4 { font-size: 14px; font-weight: 600; color: var(--biru-gelap); }
 .mock-head small { color: #8196b5; font-size: 11.5px; }
@@ -531,85 +537,104 @@ a:focus-visible, button:focus-visible {
 }
 
 /* =========================================================
-   TENTANG  (putih + aksen biru muda)
+   TENTANG  (dua kolom: teks + ilustrasi | tiga keunggulan)
 ========================================================= */
 
 #tentang {
     background:
-        radial-gradient(420px 300px at 0% 20%, rgba(219, 234, 254, .7), transparent 70%),
+        radial-gradient(460px 320px at 0% 10%, rgba(219, 234, 254, .75), transparent 70%),
+        radial-gradient(380px 280px at 100% 100%, rgba(239, 246, 255, .9), transparent 70%),
         var(--putih);
 }
 
 .about-grid {
     display: grid;
-    grid-template-columns: 1fr 1.1fr;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     gap: 72px;
-    align-items: start;
+    align-items: center;
 }
 
-.about-head p { max-width: 400px; }
+.about-left { min-width: 0; }
+
 .about-head .eyebrow { margin-bottom: 16px; }
+.about-head h2 { font-size: clamp(28px, 3.4vw, 38px); letter-spacing: -.6px; }
+.about-head p { max-width: 460px; }
 
-.goal-list { display: grid; gap: 12px; margin-bottom: 24px; }
+/* ilustrasi laptop */
 
-.goal-list li {
+.about-visual {
+    position: relative;
+    margin-top: 38px;
+    max-width: 480px;
+    padding-top: 14px;
+}
+
+.about-visual::before {
+    content: "";
+    position: absolute;
+    inset: 8% 6% 4% 0;
+    border-radius: 32px;
+    background: linear-gradient(145deg, rgba(219, 234, 254, .85), rgba(239, 246, 255, .4));
+    z-index: 0;
+}
+
+.about-visual svg {
+    position: relative;
+    z-index: 1;
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+    filter: drop-shadow(0 22px 26px rgba(30, 64, 175, .18));
+}
+
+/* tiga keunggulan */
+
+.about-right { display: grid; gap: 18px; min-width: 0; }
+
+.about-point {
     display: flex;
     align-items: center;
-    gap: 14px;
-    padding: 14px 18px;
-    border-radius: 14px;
-    background: var(--latar);
-    border: 1px solid var(--biru-muda-2);
-    font-size: 15px;
-    color: #334155;
-    transition: transform .25s var(--ease), box-shadow .25s ease, background .25s ease;
+    gap: 20px;
+    padding: 24px 26px;
+    border-radius: 16px;
+    background: var(--putih);
+    border: 1px solid var(--biru-border);
+    box-shadow: 0 8px 22px -16px rgba(30, 64, 175, .22);
+    transition: transform .3s var(--ease), box-shadow .3s ease, border-color .3s ease;
 }
 
-.goal-list li:hover { transform: translateX(5px); background: var(--putih); box-shadow: var(--bayang); }
+.about-point:hover {
+    transform: translateY(-4px);
+    border-color: #a9c7f7;
+    box-shadow: var(--bayang);
+}
 
-.g-ic {
-    width: 32px;
-    height: 32px;
+.ap-ic {
+    width: 56px;
+    height: 56px;
     flex-shrink: 0;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 9px;
+    border-radius: 14px;
     background: var(--biru-muda-2);
     color: var(--biru);
-    font-size: 12px;
-}
-
-.benefit-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-
-.benefit {
-    padding: 24px;
-    border-radius: 16px;
-    background: linear-gradient(160deg, #ffffff 0%, #eef5ff 100%);
-    border: 1px solid var(--biru-muda-2);
-    transition: transform .3s var(--ease), box-shadow .3s ease;
-}
-
-.benefit:hover { transform: translateY(-4px); box-shadow: var(--bayang); }
-
-.b-ic {
-    width: 46px;
-    height: 46px;
-    margin-bottom: 16px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 13px;
-    background: var(--biru-muda-2);
-    color: var(--biru);
-    font-size: 18px;
+    font-size: 22px;
     transition: background .3s ease, color .3s ease;
 }
 
-.benefit:hover .b-ic { background: var(--grad); color: var(--putih); }
+.about-point:hover .ap-ic { background: var(--grad); color: var(--putih); }
 
-.benefit h4 { margin-bottom: 8px; font-size: 15.5px; font-weight: 600; color: var(--biru-tua); }
-.benefit p { font-size: 14px; color: var(--teks-abu); }
+.about-point h3 {
+    margin-bottom: 4px;
+    font-size: 17px;
+    font-weight: 600;
+    line-height: 1.35;
+    color: var(--biru-tua);
+}
+
+.about-point p { font-size: 14.5px; color: var(--teks-abu); }
 
 /* =========================================================
    FITUR  (biru muda)
@@ -903,13 +928,14 @@ a:focus-visible, button:focus-visible {
 
     /* hero */
     .hero { padding-top: calc(var(--nav-h) + 40px); padding-bottom: 84px; }
-    .hero-grid { grid-template-columns: 1fr; gap: 56px; }
+    .hero-grid { grid-template-columns: minmax(0, 1fr); gap: 56px; }
     .hero-desc { max-width: 560px; }
     .hero-visual { max-width: 560px; }
     .hero-visual::before { inset: -18px -10px -14px 14px; }
     .fcard { left: -8px; }
 
-    .about-grid { grid-template-columns: 1fr; gap: 36px; }
+    .about-grid { grid-template-columns: minmax(0, 1fr); gap: 44px; }
+    .about-visual { margin-right: auto; margin-left: auto; }
     .feature-grid { grid-template-columns: repeat(2, 1fr); }
     .cat-grid { grid-template-columns: repeat(2, 1fr); }
 
@@ -939,10 +965,18 @@ a:focus-visible, button:focus-visible {
     .hero h1 { letter-spacing: -.6px; }
     .hero-cta .btn { flex: 1 1 100%; }
 
-    .mock-main { padding: 16px; }
+    .mock-body { grid-template-columns: 44px minmax(0, 1fr); }
+    .mock-side span { width: 30px; height: 30px; }
+    .mock-main { padding: 12px; }
+    .mock-row { gap: 8px; padding: 9px; }
+    .mock-row .ri { width: 30px; height: 30px; }
+    .pill { padding-right: 7px; padding-left: 7px; }
     .fcard { left: 0; bottom: -18px; padding: 10px 14px 10px 12px; }
 
-    .benefit-grid { grid-template-columns: 1fr; }
+    .about-visual { margin-top: 28px; }
+    .about-point { gap: 14px; padding: 18px; }
+    .ap-ic { width: 48px; height: 48px; font-size: 19px; }
+    .about-point h3 { font-size: 16px; }
     .feature-grid { grid-template-columns: 1fr; }
     .cat-grid { grid-template-columns: 1fr; }
 
