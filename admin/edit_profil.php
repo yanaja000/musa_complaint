@@ -320,7 +320,6 @@ $nilai_foto  = $error_profil !== "" ? ($foto_input  ?? $data["foto"])  : $data["
 <script src="../asests/js/logout.js"></script>
 
 <script>
-    /* Pratinjau foto langsung saat link diketik/ditempel */
     (function () {
 
         var input = document.getElementById("foto");

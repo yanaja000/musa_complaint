@@ -4,7 +4,7 @@
    helpers.php  -  fungsi bantu untuk semua halaman admin
 ========================================================= */
 
-/* Kelas badge status (warna seragam dengan sisi siswa) */
+
 
 if (!function_exists("kelasBadgeStatus")) {
 
@@ -93,8 +93,7 @@ if (!function_exists("avatarHtml")) {
     {
         $foto = fotoValid($foto);
 
-        /* inisial selalu dicetak; foto menutupinya, dan jika foto gagal
-           dimuat (onerror) foto dibuang sehingga inisial tampil */
+
 
         $html = '<span class="' . $kelas . '"><b>' . htmlspecialchars(inisialNama($nama)) . '</b>';
 

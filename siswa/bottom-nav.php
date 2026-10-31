@@ -1,20 +1,4 @@
 <?php
-/* =========================================================
-   BOTTOM NAVIGATION BAR + HEADER BRAND - SISWA (MUSA Complaint)
-   Satu file untuk semuanya: logo + tulisan "MUSA Complaint" di atas
-   dan 4 menu di bawah. Cukup di-include di halaman siswa mana pun.
-
-   Logo: simpan gambar di  asests/img/logo.png
-   (atau logo.jpg / logo.jpeg / logo.webp / logo.svg).
-   Kalau belum ada, otomatis tampil ikon biru sebagai pengganti.
-
-   Cara pakai (taruh sebelum </body>):
-       <?php include "bottom-nav.php"; ?>
-
-   Menu aktif terdeteksi otomatis dari nama file halaman.
-   Kalau mau dipaksa manual, set sebelum include:
-       $nav_aktif = "riwayat";   // beranda | buat | riwayat | profil
-========================================================= */
 
 if (!isset($nav_aktif)) {
 

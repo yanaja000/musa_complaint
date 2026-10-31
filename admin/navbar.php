@@ -1,16 +1,5 @@
 <?php
 
-/* =========================================================
-   navbar.php  -  navbar admin bersama (semua halaman admin)
-
-   Cara pakai di halaman admin (di dalam <body>):
-
-       <?php $halaman_aktif = "dashboard"; include __DIR__ . "/navbar.php"; ?>
-
-   Nilai $halaman_aktif: "dashboard" | "pengaduan" | "siswa" | "profil" | ""
-   Menampilkan: header (logo + foto profil bulat), Bottom Navigation Bar,
-   dan popup kartu profil. CSS: asests/css/admin_dashboard.css (satu file)
-========================================================= */
 
 require_once __DIR__ . "/helpers.php";
 

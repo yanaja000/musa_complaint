@@ -1,9 +1,4 @@
-/* =========================================================
-   admin_chat.css  (FILE BARU: asests/css/admin_chat.css)
-   Thread percakapan Admin <-> Siswa di admin/detail_pengaduan.php
-   Tampilannya sama dengan sisi siswa; posisinya dibalik:
-   pesan ADMIN di kanan (biru), pesan SISWA di kiri (terang).
-========================================================= */
+
 
 .card-title h2 i { margin-right: 6px; color: #2563eb; }
 

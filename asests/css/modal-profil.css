@@ -1,15 +1,3 @@
-/* =========================================================
-   modal-profil.css  (FILE BARU: asests/css/modal-profil.css)
-   Dipanggil otomatis oleh siswa/bottom-nav.php
-
-   BAGIAN 1 - Gaya dasar modal Bootstrap 5 (versi ringkas), agar
-              modal tetap tampil benar di halaman yang TIDAK memuat
-              bootstrap.min.css penuh (dashboard, riwayat, detail, dll).
-   BAGIAN 2 - Kartu Profil Siswa
-========================================================= */
-
-/* ---------- BAGIAN 1: dasar modal ---------- */
-
 .fade { transition: opacity .15s linear; }
 .fade:not(.show) { opacity: 0; }
 

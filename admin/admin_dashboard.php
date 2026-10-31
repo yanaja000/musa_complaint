@@ -130,7 +130,7 @@ $nama_depan = explode(" ", trim($_SESSION["nama"] ?? "Admin"))[0];
 
     <title>Dashboard Admin - MUSA Complaint</title>
 
-    <!-- CSS: dimuat otomatis oleh navbar.php (asests/css/admin_dashboard.css) -->
+    
 
 </head>
 
