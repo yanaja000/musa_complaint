@@ -1,4 +1,3 @@
-
 <?php
 
 require_once "../config/database.php";
@@ -9,6 +8,12 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 $error = "";
+$notice = "";
+
+// Pesan setelah berhasil reset password (dari lupa_password.php)
+if (($_GET["reset"] ?? "") === "success") {
+    $notice = "Password berhasil diperbarui. Silakan login dengan password baru Anda.";
+}
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $login = trim($_POST["login"] ?? "");
@@ -102,91 +107,53 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <link rel="stylesheet" href="../asests/css/login.css">
 </head>
 
-<body>
+<body class="auth-page-login">
 
     <main class="auth-container">
 
+        <?php
+        $authAssets = "../asests";
+        include __DIR__ . "/auth_side.php";
+        ?>
 
+        <div class="auth-main">
 
-        <aside class="auth-side">
+            <a href="../index.php" class="back-home">
+            <svg class="ico" aria-hidden="true"><use href="#i-arrow-left"/></svg>
+            <span>Kembali ke beranda</span>
+        </a>
 
-            <div class="side-content">
+            <section class="auth-card">
 
-                <div class="side-decoration">
-                    <img src="../asests/foto/logo.png" alt="Logo MUSA Complaint">
-                </div>
-
-                <span class="side-label">SUARA UNTUK PERUBAHAN</span>
-
-                <h2>
-                    Sekolah Lebih Baik,
-                    Dimulai dari
-                    <span>Suaramu.</span>
-                </h2>
-
-                <p>
-                    Sampaikan aspirasi dan pengaduanmu dengan mudah.
-                    Bersama kita wujudkan lingkungan sekolah
-                    yang lebih aman dan nyaman.
-                </p>
-
-                <div class="side-features">
-
-                    <div class="feature-item">
-                        <span class="feature-check">✓</span>
-                        <span>Pengaduan mudah dan praktis</span>
-                    </div>
-
-                    <div class="feature-item">
-                        <span class="feature-check">✓</span>
-                        <span>Pantau perkembangan pengaduan</span>
-                    </div>
-
-                    <div class="feature-item">
-                        <span class="feature-check">✓</span>
-                        <span>Riwayat pengaduan terorganisir</span>
-                    </div>
-
-                </div>
-
-            </div>
-
-            <div class="side-footer">
-                MUSAcomplaints · Suara untuk perubahan
-            </div>
-
-        </aside>
-
-                <section class="auth-card">
-
-            <div class="auth-brand">
-
-                <img src="../asests/foto/logo.png" alt="Logo MUSA Complaint" class="brand-icon">
-
+                <div class="card-brand">
+                <img src="../asests/foto/" alt="Logo MUSAComplaint">
                 <div>
-                    <h1>MUSA<span>complaints</span></h1>
-                    <p>Sistem Pengaduan Sekolah</p>
+                    <strong>MUSA<span>Complaint</span></strong>
+                    <small>Sistem Pengaduan Sekolah</small>
                 </div>
-
             </div>
 
-            <div class="auth-content">
+                <nav class="auth-tabs" aria-label="Masuk atau daftar">
+                <a class="auth-tab is-active" aria-current="page" href="login.php">Masuk</a>
+                <a class="auth-tab" href="register.php">Daftar</a>
+            </nav>
 
                 <div class="auth-heading">
-                    <span class="welcome-label">SELAMAT DATANG</span>
-
-                    <h2>Masuk ke Akun</h2>
-
-                    <p>
-                        Silakan masuk untuk menyampaikan dan
-                        memantau pengaduan lingkungan sekolah.
-                    </p>
+                    <h1>Selamat Datang Kembali</h1>
+                    <p>Masuk ke akun MUSAComplaint untuk menyampaikan dan memantau pengaduan sekolah.</p>
                 </div>
+
+                <?php if ($notice): ?>
+                    <div class="error-message is-success" role="status">
+                        <span>✓</span>
+                        <div><?= htmlspecialchars($notice); ?></div>
+                    </div>
+                <?php endif; ?>
 
                 <?php if ($error): ?>
                     <div class="error-message" role="alert">
                         <span>!</span>
-                        <?= htmlspecialchars($error); ?>
+                        <div><?= htmlspecialchars($error); ?></div>
                     </div>
                 <?php endif; ?>
 
@@ -197,8 +164,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         <label for="login">Username atau Email</label>
 
                         <div class="input-wrapper">
-                            <span class="input-icon">✉</span>
-
+                            <svg class="ico input-icon" aria-hidden="true"><use href="#i-user"/></svg>
                             <input
                                 type="text"
                                 id="login"
@@ -214,12 +180,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
                     <div class="form-group">
 
-                        <label for="password">Password</label>
+                        <div class="label-row">
+                            <label for="password">Password</label>
+                            <a href="otp_lupa_password/lupa_password.php">Lupa Password?</a>
+                        </div>
 
                         <div class="input-wrapper password-wrapper">
-
-                            <span class="input-icon">◆</span>
-
+                            <svg class="ico input-icon" aria-hidden="true"><use href="#i-lock"/></svg>
                             <input
                                 type="password"
                                 name="password"
@@ -228,36 +195,20 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                 autocomplete="current-password"
                                 required
                             >
-
-                            <button
-                                type="button"
-                                class="toggle-password"
-                                id="togglePassword"
-                                aria-label="Tampilkan password"
-                            >
-                                <svg
-                                    class="eye-icon"
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    stroke-width="1.8"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                >
+                            <button type="button" class="toggle-password" id="togglePassword" data-target="password" aria-label="Tampilkan password">
+                                <svg class="eye-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7Z"/>
                                     <circle cx="12" cy="12" r="3"/>
                                     <path class="eye-slash" d="M4 4l16 16"/>
                                 </svg>
                             </button>
-
                         </div>
 
                     </div>
 
                     <button type="submit" class="login-button">
-                        <span>Masuk Sekarang</span>
-                        <span class="button-arrow">→</span>
+                        <span>Masuk</span>
+                        <svg class="ico btn-arrow" aria-hidden="true"><use href="#i-arrow-right"/></svg>
                     </button>
 
                 </form>
@@ -269,14 +220,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     </p>
                 </div>
 
-            </div>
+            </section>
 
-            <div class="auth-bottom">
-                <span>© <?= date("Y"); ?> MUSAcomplaints</span>
-                <span>Sistem Pengaduan Sekolah</span>
-            </div>
+            <p class="page-copy">© <?= date("Y"); ?> MUSAComplaint. Seluruh hak dilindungi.</p>
 
-        </section>
+        </div>
 
     </main>
 

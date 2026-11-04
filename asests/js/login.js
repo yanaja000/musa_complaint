@@ -1,38 +1,35 @@
+/* =========================================
+   MUSA COMPLAINT - TAMPIL / SEMBUNYIKAN PASSWORD
+   Dipakai oleh halaman Login dan Registrasi.
+   Tombol .toggle-password mengontrol input pada atribut data-target
+   (jika kosong, memakai input dengan id "password").
+========================================= */
+
 document.addEventListener("DOMContentLoaded", function () {
 
-    const passwordInput = document.getElementById("password");
-    const togglePassword = document.getElementById("togglePassword");
+    document.querySelectorAll(".toggle-password").forEach(function (toggle) {
 
-    if (passwordInput && togglePassword) {
+        const passwordInput = document.getElementById(toggle.dataset.target || "password");
 
-        togglePassword.addEventListener("click", function () {
+        if (!passwordInput) {
+            return;
+        }
 
-            if (passwordInput.type === "password") {
+        toggle.addEventListener("click", function () {
 
-                passwordInput.type = "text";
+            const tampil = passwordInput.type === "password";
 
-                togglePassword.classList.add("show");
+            passwordInput.type = tampil ? "text" : "password";
 
-                togglePassword.setAttribute(
-                    "aria-label",
-                    "Sembunyikan password"
-                );
+            toggle.classList.toggle("show", tampil);
 
-            } else {
-
-                passwordInput.type = "password";
-
-                togglePassword.classList.remove("show");
-
-                togglePassword.setAttribute(
-                    "aria-label",
-                    "Tampilkan password"
-                );
-
-            }
+            toggle.setAttribute(
+                "aria-label",
+                tampil ? "Sembunyikan password" : "Tampilkan password"
+            );
 
         });
 
-    }
+    });
 
 });

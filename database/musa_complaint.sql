@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Oct 11, 2026 at 01:46 PM
+-- Generation Time: Nov 04, 2026 at 09:26 AM
 -- Server version: 8.4.3
 -- PHP Version: 8.3.33
 
@@ -34,16 +34,17 @@ CREATE TABLE `admin` (
   `username` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
   `password` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `role` enum('admin') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'admin',
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `foto` text COLLATE utf8mb4_unicode_ci
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `admin`
 --
 
-INSERT INTO `admin` (`id_admin`, `nama`, `email`, `username`, `password`, `role`, `created_at`) VALUES
-(1, 'Brian Pc', 'pcbrian899@gmail.com', 'yannpccc', '$2y$10$YcnINe9Mc9MWssSpHNQxguQeFVzZa3NPc8SQeACmiZhIOIx1hfMjK', 'admin', '2026-10-07 11:29:40'),
-(2, 'adminn', 'b1685236@gmail.com', 'adminn kuuu', '$2y$10$jTUWj8Q0I56ErTxXblWloua8YJqgIIF6vYXq119wP1RwVKsR272ua', 'admin', '2026-10-08 14:08:33');
+INSERT INTO `admin` (`id_admin`, `nama`, `email`, `username`, `password`, `role`, `created_at`, `foto`) VALUES
+(1, 'Brian Pc', 'pcbrian899@gmail.com', 'yannpccc', '$2y$10$YcnINe9Mc9MWssSpHNQxguQeFVzZa3NPc8SQeACmiZhIOIx1hfMjK', 'admin', '2026-10-07 11:29:40', 'https://i.pinimg.com/736x/e8/64/b3/e864b36657e1838b5e1b3d17d19d8f42.jpg'),
+(2, 'adminn', 'b1685236@gmail.com', 'adminn kuuu', '$2y$10$jTUWj8Q0I56ErTxXblWloua8YJqgIIF6vYXq119wP1RwVKsR272ua', 'admin', '2026-10-08 14:08:33', NULL);
 
 -- --------------------------------------------------------
 
@@ -114,7 +115,7 @@ CREATE TABLE `pengaduan` (
 
 INSERT INTO `pengaduan` (`id_pengaduan`, `id_siswa`, `id_kategori`, `id_status`, `judul`, `isi_pengaduan`, `lokasi`, `created_at`, `updated_at`, `dilihat_siswa_at`) VALUES
 (31, 4, 1, 4, 'efejfjefe', 'wdwdwdw', 'uuuu', '2026-10-10 18:49:17', '2026-10-10 18:50:46', '2026-10-11 20:36:04'),
-(32, 4, 4, 2, 'satpam', 'wwwew', 'ewfwdas', '2026-10-11 06:52:19', '2026-10-11 06:58:26', '2026-10-11 20:35:54');
+(32, 4, 4, 2, 'satpam', 'wwwew', 'ewfwdas', '2026-10-11 06:52:19', '2026-10-11 06:58:26', '2026-10-12 19:17:37');
 
 -- --------------------------------------------------------
 
@@ -167,7 +168,7 @@ CREATE TABLE `siswa` (
 
 INSERT INTO `siswa` (`id_siswa`, `nis`, `nama`, `kelas`, `email`, `username`, `password`, `role`, `created_at`, `foto`) VALUES
 (3, '000000', 'Brian Pc', 'rpl', 'pcbrian899@gmail.com', 'yann', '$2y$10$Ls1jd3sodK/xFfRwkuxMWOCsrYuRwxZ7jWAHiXhx3RqtzZa8z9KEe', 'siswa', '2026-10-05 16:30:56', NULL),
-(4, '333333', 'Brian 123', 'X RPL', 'b1685236@gmail.com', 'yanadmin', '$2y$10$ROk6NILzza.smRr8sIiAv.1YzqswUvtvW.U6uWej78VKity0HxH9G', 'siswa', '2026-10-07 11:22:14', 'https://i.pinimg.com/736x/aa/1d/a8/aa1da8404c288c51dd63e6384bba8a4f.jpg');
+(4, '333333', 'Brian 123', 'X RPL', 'b1685236@gmail.com', 'yanadmin', '$2y$10$ROk6NILzza.smRr8sIiAv.1YzqswUvtvW.U6uWej78VKity0HxH9G', 'siswa', '2026-10-07 11:22:14', NULL);
 
 -- --------------------------------------------------------
 

@@ -1,6 +1,7 @@
 <?php
 
 require_once "../config/database.php";
+require_once "../config/otp.php";
 
 $error = "";
 $success = "";
@@ -25,6 +26,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     $nis = trim($_POST["nis"] ?? "");
     $kelas = trim($_POST["kelas"] ?? "");
+
+    // Status verifikasi email (OTP) - dicek di backend
+    $proof = otpGetProof(OTP_PURPOSE_REGISTER);
+    $emailTerverifikasi = $proof !== null
+        && $proof["email"] === otpNormalizeEmail($email)
+        && $proof["role"] === $role;
 
     // Validasi dasar
     if (empty($role) || empty($nama) || empty($email) ||
@@ -52,6 +59,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     } elseif (strlen($password) < 6) {
 
         $error = "Password minimal 6 karakter.";
+
+    } elseif (!$emailTerverifikasi) {
+
+        $error = "Email belum diverifikasi. Silakan kirim dan masukkan kode OTP terlebih dahulu.";
 
     } else {
 
@@ -110,10 +121,34 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         $hashed_password
                     );
 
-                    if ($stmt->execute()) {
-                        $success = "Registrasi siswa berhasil. Silakan login.";
-                    } else {
+                    $conn->begin_transaction();
+
+                    try {
+
+                        if (!otpConsume($conn, OTP_PURPOSE_REGISTER, otpNormalizeEmail($email), $role)) {
+
+                            $conn->rollback();
+                            $error = "Verifikasi email tidak valid atau sudah digunakan. Silakan kirim ulang kode OTP.";
+
+                        } elseif ($stmt->execute()) {
+
+                            $conn->commit();
+                            otpClearProof(OTP_PURPOSE_REGISTER);
+                            $success = "Registrasi siswa berhasil. Silakan login.";
+
+                        } else {
+
+                            $conn->rollback();
+                            $error = "Registrasi gagal.";
+
+                        }
+
+                    } catch (Throwable $e) {
+
+                        $conn->rollback();
+                        error_log("[MUSAComplaint] Registrasi siswa gagal: " . $e->getMessage());
                         $error = "Registrasi gagal.";
+
                     }
                 }
             }
@@ -175,19 +210,51 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     $max_admin
                 );
 
-                if (!$stmt->execute()) {
+                $conn->begin_transaction();
+
+                try {
+
+                    if (!otpConsume($conn, OTP_PURPOSE_REGISTER, otpNormalizeEmail($email), $role)) {
+
+                        $conn->rollback();
+                        $error = "Verifikasi email tidak valid atau sudah digunakan. Silakan kirim ulang kode OTP.";
+
+                    } elseif (!$stmt->execute()) {
+
+                        $conn->rollback();
+                        $error = "Registrasi gagal.";
+
+                    } elseif ($stmt->affected_rows === 0) {
+
+                        $conn->rollback();
+                        $admin_penuh = true;
+                        $error = "Registrasi admin ditutup karena kuota admin sudah penuh (maksimal " . MAX_ADMIN . ").";
+
+                    } else {
+
+                        $conn->commit();
+                        otpClearProof(OTP_PURPOSE_REGISTER);
+                        $success = "Registrasi admin berhasil. Silakan login.";
+                        $admin_penuh = ($jumlah_admin + 1) >= MAX_ADMIN;
+
+                    }
+
+                } catch (Throwable $e) {
+
+                    $conn->rollback();
+                    error_log("[MUSAComplaint] Registrasi admin gagal: " . $e->getMessage());
                     $error = "Registrasi gagal.";
-                } elseif ($stmt->affected_rows === 0) {
-                    $admin_penuh = true;
-                    $error = "Registrasi admin ditutup karena kuota admin sudah penuh (maksimal " . MAX_ADMIN . ").";
-                } else {
-                    $success = "Registrasi admin berhasil. Silakan login.";
-                    $admin_penuh = ($jumlah_admin + 1) >= MAX_ADMIN;
+
                 }
             }
         }
     }
 }
+
+// Status OTP untuk tampilan (bukti verifikasi divalidasi ke database)
+$proofAktif = otpActiveProof($conn, OTP_PURPOSE_REGISTER);
+$emailTerverifikasiAwal = $proofAktif["email"] ?? "";
+$roleTerverifikasiAwal = $proofAktif["role"] ?? "";
 
 ?>
 
@@ -199,226 +266,320 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>Registrasi - MUSA Complaint</title>
+
+    <link rel="stylesheet" href="../asests/css/login.css">
     <link rel="stylesheet" href="../asests/css/register.css">
-
-    <link rel="stylesheet" href="../asests/css/register_limit.css">
-
 </head>
 
-<body>
+<body class="auth-page-register">
 
-<div class="container">
+<main class="auth-container">
 
-    <div class="card">
+    <?php
+    $authAssets = "../asests";
+    include __DIR__ . "/auth_side.php";
+    ?>
 
-        <div class="logo">
-            <img src="../asests/foto/logo.png" alt="Logo MUSA Complaint">
-            <h1>MUSA Complaint</h1>
-            <p>Sistem Pengaduan Sekolah</p>
-        </div>
+    <div class="auth-main">
 
-        <?php if (!empty($error)): ?>
+        <a href="../index.php" class="back-home">
+            <svg class="ico" aria-hidden="true"><use href="#i-arrow-left"/></svg>
+            <span>Kembali ke beranda</span>
+        </a>
 
-            <div class="message">
-                <?= htmlspecialchars($error) ?>
-            </div>
+        <section class="auth-card">
 
-        <?php endif; ?>
-
-
-        <?php if (!empty($success)): ?>
-
-            <div class="message">
-                <?= htmlspecialchars($success) ?>
-            </div>
-
-        <?php endif; ?>
-
-
-        <?php if ($admin_penuh && empty($success)): ?>
-
-            <div class="admin-warning" role="alert">
-                <span>⚠️</span>
+            <div class="card-brand">
+                <img src="../asests/foto/baru.png" alt="Logo MUSAComplaint">
                 <div>
-                    <strong>Kuota admin sudah penuh</strong>
-                    Akun admin sudah mencapai batas maksimal
-                    (<?= MAX_ADMIN ?> akun).
+                    <strong>MUSA<span>Complaint</span></strong>
+                    <small>Sistem Pengaduan Sekolah</small>
                 </div>
             </div>
 
-        <?php endif; ?>
+            <nav class="auth-tabs" aria-label="Masuk atau daftar">
+                <a class="auth-tab" href="login.php">Masuk</a>
+                <a class="auth-tab is-active" aria-current="page" href="register.php">Daftar</a>
+            </nav>
 
-        <form method="POST">
+            <div class="auth-heading">
+                <h1>Buat Akun Baru</h1>
+                <p>Daftar untuk mulai menyampaikan dan memantau pengaduan sekolah.</p>
+            </div>
 
-            <div class="form-group">
+            <?php if (!empty($error)): ?>
 
-                <label>Pilih Role</label>
-
-                <div class="role-container">
-
-                    <label class="role-option" id="roleSiswa">
-
-                        <input
-                            type="radio"
-                            name="role"
-                            value="siswa"
-                            onchange="ubahRole('siswa')"
-                        >
-
-                        <div class="role-title">
-                            Siswa
-                        </div>
-
-
-                    </label>
-
-
-                    <label
-                        class="role-option<?= $admin_penuh ? ' disabled' : '' ?>"
-                        id="roleAdmin"
-                    >
-
-                        <input
-                            type="radio"
-                            name="role"
-                            value="admin"
-                            onchange="ubahRole('admin')"
-                        >
-
-                        <div class="role-title">
-                            Admin
-                        </div>
-
-                    </label>
-
+                <div class="error-message" role="alert">
+                    <span>!</span>
+                    <div><?= htmlspecialchars($error) ?></div>
                 </div>
 
-            </div>
+            <?php endif; ?>
 
 
-            <div class="form-group">
+            <?php if (!empty($success)): ?>
 
-                <label>Nama Lengkap</label>
+                <div class="error-message is-success" role="status">
+                    <span>✓</span>
+                    <div><?= htmlspecialchars($success) ?></div>
+                </div>
 
-                <input
-                    type="text"
-                    name="nama"
-                    placeholder="Masukkan nama lengkap"
-                    required
-                >
-
-            </div>
+            <?php endif; ?>
 
 
-            <div id="dataSiswa">
+            <?php if ($admin_penuh && empty($success)): ?>
+
+                <div class="admin-warning" role="alert">
+                    <span>⚠️</span>
+                    <div>
+                        <strong>Kuota admin sudah penuh</strong>
+                        Akun admin sudah mencapai batas maksimal
+                        (<?= MAX_ADMIN ?> akun).
+                    </div>
+                </div>
+
+            <?php endif; ?>
+
+            <form method="POST" id="registerForm">
 
                 <div class="form-group">
 
-                    <label>NIS</label>
+                    <label>Pilih Role</label>
 
-                    <input
-                        type="text"
-                        name="nis"
-                        placeholder="Masukkan NIS"
-                    >
+                    <div class="role-container">
+
+                        <label class="role-option" id="roleSiswa">
+
+                            <input
+                                type="radio"
+                                name="role"
+                                value="siswa"
+                                onchange="ubahRole('siswa')"
+                            >
+
+                            <svg class="ico" aria-hidden="true"><use href="#i-user"/></svg>
+                            <span class="role-title">Siswa</span>
+
+                        </label>
+
+                        <label
+                            class="role-option<?= $admin_penuh ? ' disabled' : '' ?>"
+                            id="roleAdmin"
+                        >
+
+                            <input
+                                type="radio"
+                                name="role"
+                                value="admin"
+                                onchange="ubahRole('admin')"
+                            >
+
+                            <svg class="ico" aria-hidden="true"><use href="#i-shield"/></svg>
+                            <span class="role-title">Admin</span>
+
+                        </label>
+
+                    </div>
 
                 </div>
 
 
                 <div class="form-group">
 
-                    <label>Kelas</label>
+                    <label for="nama">Nama Lengkap</label>
 
-                    <input
-                        type="text"
-                        name="kelas"
-                        placeholder="Contoh: XI RPL 1"
-                    >
+                    <div class="input-wrapper">
+                            <svg class="ico input-icon" aria-hidden="true"><use href="#i-user"/></svg>
+                            <input
+                            type="text"
+                            id="nama"
+                            name="nama"
+                            placeholder="Masukkan nama lengkap"
+                            autocomplete="name"
+                            required
+                        >
+                        </div>
 
                 </div>
 
+
+                <div id="dataSiswa" class="field-row">
+
+                    <div class="form-group">
+
+                        <label for="nis">NIS</label>
+
+                        <div class="input-wrapper">
+                            <svg class="ico input-icon" aria-hidden="true"><use href="#i-id"/></svg>
+                            <input
+                                type="text"
+                                id="nis"
+                                name="nis"
+                                placeholder="Masukkan NIS"
+                            >
+                        </div>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="kelas">Kelas</label>
+
+                        <div class="input-wrapper">
+                            <svg class="ico input-icon" aria-hidden="true"><use href="#i-school"/></svg>
+                            <input
+                                type="text"
+                                id="kelas"
+                                name="kelas"
+                                placeholder="Contoh: XI RPL 1"
+                            >
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="email">Email</label>
+
+                    <div class="input-wrapper">
+                            <svg class="ico input-icon" aria-hidden="true"><use href="#i-mail"/></svg>
+                            <input
+                            type="email"
+                            id="email"
+                            name="email"
+                            placeholder="Masukkan email"
+                            value="<?= htmlspecialchars($emailTerverifikasiAwal) ?>"
+                            autocomplete="email"
+                            required
+                        >
+                        </div>
+
+                </div>
+
+
+                <div class="form-group otp-group">
+
+                    <button type="button" id="otpSendBtn" class="otp-btn otp-send">
+                        Kirim Kode OTP
+                    </button>
+
+                    <label for="otpInput">Kode OTP Register</label>
+
+                    <div class="input-wrapper">
+                            <svg class="ico input-icon" aria-hidden="true"><use href="#i-shield"/></svg>
+                            <input
+                            type="text"
+                            id="otpInput"
+                            class="otp-input"
+                            inputmode="numeric"
+                            maxlength="6"
+                            autocomplete="one-time-code"
+                            placeholder="Masukkan 6 digit kode OTP"
+                        >
+                        </div>
+
+                    <div class="otp-status" id="otpStatus" role="status" aria-live="polite"></div>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="username">Username</label>
+
+                    <div class="input-wrapper">
+                            <svg class="ico input-icon" aria-hidden="true"><use href="#i-user"/></svg>
+                            <input
+                            type="text"
+                            id="username"
+                            name="username"
+                            placeholder="Masukkan username"
+                            autocomplete="username"
+                            required
+                        >
+                        </div>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="password">Password</label>
+
+                    <div class="input-wrapper password-wrapper">
+                            <svg class="ico input-icon" aria-hidden="true"><use href="#i-lock"/></svg>
+                            <input
+                            type="password"
+                            id="password"
+                            name="password"
+                            placeholder="Minimal 6 karakter"
+                            autocomplete="new-password"
+                            required
+                        >
+                        <button type="button" class="toggle-password" data-target="password" aria-label="Tampilkan password">
+                                <svg class="eye-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7Z"/>
+                                    <circle cx="12" cy="12" r="3"/>
+                                    <path class="eye-slash" d="M4 4l16 16"/>
+                                </svg>
+                            </button>
+                        </div>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="konfirmasiPassword">Konfirmasi Password</label>
+
+                    <div class="input-wrapper password-wrapper">
+                            <svg class="ico input-icon" aria-hidden="true"><use href="#i-lock"/></svg>
+                            <input
+                            type="password"
+                            id="konfirmasiPassword"
+                            name="konfirmasi_password"
+                            placeholder="Masukkan ulang password"
+                            autocomplete="new-password"
+                            required
+                        >
+                        <button type="button" class="toggle-password" data-target="konfirmasiPassword" aria-label="Tampilkan password">
+                                <svg class="eye-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7Z"/>
+                                    <circle cx="12" cy="12" r="3"/>
+                                    <path class="eye-slash" d="M4 4l16 16"/>
+                                </svg>
+                            </button>
+                        </div>
+
+                </div>
+
+
+                <button type="submit" id="registerBtn" class="login-button" disabled>
+                    <span>Daftar</span>
+                    <svg class="ico btn-arrow" aria-hidden="true"><use href="#i-arrow-right"/></svg>
+                </button>
+
+            </form>
+
+
+            <div class="auth-footer">
+                <p>
+                    Sudah punya akun?
+                    <a href="login.php">Masuk</a>
+                </p>
             </div>
 
+        </section>
 
-            <div class="form-group">
-
-                <label>Email</label>
-
-                <input
-                    type="email"
-                    name="email"
-                    placeholder="Masukkan email"
-                    required
-                >
-
-            </div>
-
-
-            <div class="form-group">
-
-                <label>Username</label>
-
-                <input
-                    type="text"
-                    name="username"
-                    placeholder="Masukkan username"
-                    required
-                >
-
-            </div>
-
-
-            <div class="form-group">
-
-                <label>Password</label>
-
-                <input
-                    type="password"
-                    name="password"
-                    placeholder="Minimal 6 karakter"
-                    required
-                    
-                >
-
-                
-
-            </div>
-
-
-            <div class="form-group">
-
-                <label>Konfirmasi Password</label>
-
-                <input
-                    type="password"
-                    name="konfirmasi_password"
-                    placeholder="Masukkan ulang password"
-                    required
-                >
-
-            </div>
-
-
-            <button type="submit">
-                Daftar
-            </button>
-
-        </form>
-
-
-        <div class="login-link">
-
-            Sudah punya akun?
-
-            <a href="login.php">
-                Login
-            </a>
-
-        </div>
+        <p class="page-copy">© <?= date("Y"); ?> MUSAComplaint. Seluruh hak dilindungi.</p>
 
     </div>
 
-</div>
+</main>
 
 
 <div class="limit-overlay" id="limitOverlay">
@@ -494,6 +655,20 @@ function ubahRole(role) {
 }
 
 </script>
+
+<script>
+window.MUSA_OTP = <?= json_encode([
+    "csrf"      => otpCsrfToken(),
+    "sendUrl"   => "otp_register/send_otp.php",
+    "verifyUrl" => "otp_register/verify_otp.php",
+    "verified"  => $emailTerverifikasiAwal !== "",
+    "email"     => $emailTerverifikasiAwal,
+    "role"      => $roleTerverifikasiAwal,
+], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
+</script>
+<script src="../asests/js/login.js"></script>
+<script src="../asests/js/otp.js"></script>
+<script src="../asests/js/register_otp.js"></script>
 
 </body>
 

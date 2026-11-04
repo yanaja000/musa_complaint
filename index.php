@@ -37,7 +37,7 @@ try {
 
 /* Logo aplikasi */
 
-$logo_src = "asests/foto/logo.png";
+$logo_src = "asests/foto/baru.png";
 
 /* Data tampilan (ikon dan isi sama seperti sebelumnya) */
 
